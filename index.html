@@ -514,115 +514,73 @@
 
   function renderEmployees() {
     const container = document.getElementById('employeesContainer');
-    container.innerHTML = employees.map(emp => {
-      // Calculate remaining advance for this employee
-      const cashReceived = (emp.adv_mohsan || 0) + (emp.adv_muzmal || 0) + (emp.direct_income || 0);
-      const remainingAdvance = cashReceived - (emp.purchases || 0);
-      
-      // Salary deduction
-      const salary = emp.salary || 0;
-      let netSalary = 0;
-      let deduction = 0;
-      if (salary > 0) {
-        if (remainingAdvance > 0) {
-          deduction = Math.min(salary, remainingAdvance);
-          netSalary = salary - deduction;
-        } else {
-          netSalary = salary;
-        }
-      }
-
-      return `
-        <div class="card card-employee">
-          <div class="card-title">
-            <span>👤 ${emp.name}</span>
-            <button class="btn-danger-sm" onclick="removeEmployee('${emp.id}')">ہٹائیں (Remove)</button>
-          </div>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-            <div class="form-group">
-              <label class="form-label">محسن نے ایڈوانس دیا</label>
-              <input type="number" class="form-input" value="${emp.adv_mohsan || 0}" 
-                     oninput="updateEmpField('${emp.id}', 'adv_mohsan', this.value)">
-            </div>
-            <div class="form-group">
-              <label class="form-label">مزمل نے ایڈوانس دیا</label>
-              <input type="number" class="form-input" value="${emp.adv_muzmal || 0}" 
-                     oninput="updateEmpField('${emp.id}', 'adv_muzmal', this.value)">
-            </div>
-          </div>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-            <div class="form-group">
-              <label class="form-label">خریداری / خرچہ</label>
-              <input type="number" class="form-input" value="${emp.purchases || 0}" 
-                     oninput="updateEmpField('${emp.id}', 'purchases', this.value)">
-            </div>
-            <div class="form-group">
-              <label class="form-label">براہ راست آمدنی (اگر ملی)</label>
-              <input type="number" class="form-input" value="${emp.direct_income || 0}" 
-                     oninput="updateEmpField('${emp.id}', 'direct_income', this.value)">
-            </div>
-          </div>
-
-          <!-- Advance Status Badge -->
-          <div style="background: var(--slate-100); padding: 8px; border-radius: 6px; margin-bottom: 10px; font-size: 12px; display: flex; justify-content: space-between; align-items: center;">
-            <span>ایڈوانس سے بچا کیش:</span>
-            <strong style="color: ${remainingAdvance > 0 ? 'var(--warning)' : 'var(--success)'}; font-size: 13px;">
-              ${formatPKR(remainingAdvance)}
-            </strong>
-          </div>
-
-          <!-- Salary & Deduction Section -->
-          <div style="border-top: 1px dashed var(--slate-200); padding-top: 10px;">
-            <div class="form-group">
-              <label class="form-label">
-                ماہانہ تنخواہ (Salary)
-                <span class="form-sub">اگر تنخواہ میں سے کٹوتی کرنی ہو تو یہاں لکھیں</span>
-              </label>
-              <input type="number" class="form-input" value="${emp.salary || 0}" 
-                     oninput="updateEmpField('${emp.id}', 'salary', this.value)">
-            </div>
-
-            ${salary > 0 ? `
-              <div style="background: var(--success-light); border: 1px solid #bbf7d0; padding: 8px; border-radius: 6px; font-size: 12px; margin-bottom: 8px;">
-                <div>تنخواہ سے کٹوتی: <strong>-${formatPKR(deduction)}</strong></div>
-                <div style="font-size: 13px; font-weight: 700; color: #166534; margin-top: 2px;">
-                  ادا کرنے والی نیٹ تنخواہ: ${formatPKR(netSalary)}
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">یہ نیٹ تنخواہ کس نے ادا کی؟</label>
-                <select class="form-input" onchange="updateEmpField('${emp.id}', 'salary_payer', this.value)">
-                  <option value="none" ${emp.salary_payer === 'none' ? 'selected' : ''}>ابھی ادا نہیں کی (Pending)</option>
-                  <option value="mohsan" ${emp.salary_payer === 'mohsan' ? 'selected' : ''}>محسن نے اپنی جیب سے دی</option>
-                  <option value="muzmal" ${emp.salary_payer === 'muzmal' ? 'selected' : ''}>مزمل نے اپنی جیب سے دی</option>
-                  <option value="common" ${emp.salary_payer === 'common' ? 'selected' : ''}>مشترکہ آمدنی / گلے سے دی</option>
-                </select>
-              </div>
-            ` : ''}
-          </div>
-
+    container.innerHTML = employees.map(emp => `
+      <div class="card card-employee" id="card_${emp.id}">
+        <div class="card-title">
+          <span>👤 ${emp.name}</span>
+          <button class="btn-danger-sm" onclick="removeEmployee('${emp.id}')">ہٹائیں (Remove)</button>
         </div>
-      `;
-    }).join('');
-  }
 
-  function updateEmpField(id, field, value) {
-    const emp = employees.find(e => e.id === id);
-    if (emp) {
-      if (field === 'salary_payer') {
-        emp[field] = value;
-      } else {
-        emp[field] = parseFloat(value) || 0;
-      }
-      // Re-render if salary changed to show deduction box
-      if (field === 'salary') {
-        renderEmployees();
-      }
-      calculate();
-    }
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+          <div class="form-group">
+            <label class="form-label">محسن نے ایڈوانس دیا</label>
+            <input type="number" id="inp_${emp.id}_adv_m" class="form-input" value="${emp.adv_mohsan || 0}" oninput="calculate()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">مزمل نے ایڈوانس دیا</label>
+            <input type="number" id="inp_${emp.id}_adv_z" class="form-input" value="${emp.adv_muzmal || 0}" oninput="calculate()">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+          <div class="form-group">
+            <label class="form-label">خریداری / خرچہ</label>
+            <input type="number" id="inp_${emp.id}_pur" class="form-input" value="${emp.purchases || 0}" oninput="calculate()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">براہ راست آمدنی (اگر ملی)</label>
+            <input type="number" id="inp_${emp.id}_inc" class="form-input" value="${emp.direct_income || 0}" oninput="calculate()">
+          </div>
+        </div>
+
+        <!-- Advance Status Badge -->
+        <div style="background: var(--slate-100); padding: 8px; border-radius: 6px; margin-bottom: 10px; font-size: 12px; display: flex; justify-content: space-between; align-items: center;">
+          <span>ایڈوانس سے بچا کیش:</span>
+          <strong id="badge_${emp.id}_rem" style="font-size: 13px;">Rs. 0.00</strong>
+        </div>
+
+        <!-- Salary & Deduction Section -->
+        <div style="border-top: 1px dashed var(--slate-200); padding-top: 10px;">
+          <div class="form-group">
+            <label class="form-label">
+              ماہانہ تنخواہ (Salary)
+              <span class="form-sub">اگر تنخواہ میں سے کٹوتی کرنی ہو تو یہاں لکھیں</span>
+            </label>
+            <input type="number" id="inp_${emp.id}_sal" class="form-input" value="${emp.salary || 0}" oninput="calculate()">
+          </div>
+
+          <div id="box_${emp.id}_sal_details" style="display: none;">
+            <div style="background: var(--success-light); border: 1px solid #bbf7d0; padding: 8px; border-radius: 6px; font-size: 12px; margin-bottom: 8px;">
+              <div>تنخواہ سے کٹوتی: <strong id="badge_${emp.id}_ded">-Rs. 0.00</strong></div>
+              <div style="font-size: 13px; font-weight: 700; color: #166534; margin-top: 2px;">
+                ادا کرنے والی نیٹ تنخواہ: <span id="badge_${emp.id}_net">Rs. 0.00</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">یہ نیٹ تنخواہ کس نے ادا کی؟</label>
+              <select id="inp_${emp.id}_payer" class="form-input" onchange="calculate()">
+                <option value="none" ${emp.salary_payer === 'none' ? 'selected' : ''}>ابھی ادا نہیں کی (Pending)</option>
+                <option value="mohsan" ${emp.salary_payer === 'mohsan' ? 'selected' : ''}>محسن نے اپنی جیب سے دی</option>
+                <option value="muzmal" ${emp.salary_payer === 'muzmal' ? 'selected' : ''}>مزمل نے اپنی جیب سے دی</option>
+                <option value="common" ${emp.salary_payer === 'common' ? 'selected' : ''}>مشترکہ آمدنی / گلے سے دی</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    `).join('');
   }
 
   function fillUserValues() {
@@ -682,37 +640,74 @@
     let totalRemainingEmpCash = 0;
 
     employees.forEach(e => {
-      const advM = e.adv_mohsan || 0;
-      const advZ = e.adv_muzmal || 0;
-      const inc = e.direct_income || 0;
-      const pur = e.purchases || 0;
-      const sal = e.salary || 0;
+      const elM = document.getElementById(`inp_${e.id}_adv_m`);
+      const elZ = document.getElementById(`inp_${e.id}_adv_z`);
+      const elPur = document.getElementById(`inp_${e.id}_pur`);
+      const elInc = document.getElementById(`inp_${e.id}_inc`);
+      const elSal = document.getElementById(`inp_${e.id}_sal`);
+      const elPayer = document.getElementById(`inp_${e.id}_payer`);
+
+      const advM = elM ? (parseFloat(elM.value) || 0) : (e.adv_mohsan || 0);
+      const advZ = elZ ? (parseFloat(elZ.value) || 0) : (e.adv_muzmal || 0);
+      const pur = elPur ? (parseFloat(elPur.value) || 0) : (e.purchases || 0);
+      const inc = elInc ? (parseFloat(elInc.value) || 0) : (e.direct_income || 0);
+      const sal = elSal ? (parseFloat(elSal.value) || 0) : (e.salary || 0);
+      const payer = elPayer ? elPayer.value : (e.salary_payer || 'none');
+
+      // Update in-memory state
+      e.adv_mohsan = advM;
+      e.adv_muzmal = advZ;
+      e.purchases = pur;
+      e.direct_income = inc;
+      e.salary = sal;
+      e.salary_payer = payer;
+
+      const cashReceived = advM + advZ + inc;
+      const rem = cashReceived - pur;
+
+      // Update remaining cash badge directly without re-rendering
+      const badgeRem = document.getElementById(`badge_${e.id}_rem`);
+      if (badgeRem) {
+        badgeRem.textContent = formatPKR(rem);
+        badgeRem.style.color = rem > 0 ? 'var(--warning)' : 'var(--success)';
+      }
+
+      // Update salary deduction box directly without re-rendering
+      const boxSal = document.getElementById(`box_${e.id}_sal_details`);
+      const badgeDed = document.getElementById(`badge_${e.id}_ded`);
+      const badgeNet = document.getElementById(`badge_${e.id}_net`);
+
+      let remainingCashAfterSalary = rem;
+      let netSal = 0;
+
+      if (sal > 0) {
+        if (boxSal) boxSal.style.display = 'block';
+        let deduction = 0;
+        if (rem > 0) {
+          deduction = Math.min(sal, rem);
+          netSal = sal - deduction;
+          remainingCashAfterSalary = rem - deduction;
+        } else {
+          netSal = sal;
+        }
+
+        if (badgeDed) badgeDed.textContent = '-' + formatPKR(deduction);
+        if (badgeNet) badgeNet.textContent = formatPKR(netSal);
+
+        if (payer === 'mohsan') {
+          totalNetSalaryPaidByMohsan += netSal;
+        } else if (payer === 'muzmal') {
+          totalNetSalaryPaidByMuzmal += netSal;
+        }
+      } else {
+        if (boxSal) boxSal.style.display = 'none';
+      }
 
       totalAdvByMohsan += advM;
       totalAdvByMuzmal += advZ;
       totalEmpDirectIncome += inc;
       totalEmpPurchases += pur;
       totalEmpSalaries += sal;
-
-      const cashInHand = advM + advZ + inc - pur;
-      let remainingCashAfterSalary = cashInHand;
-
-      if (sal > 0) {
-        let deduction = 0;
-        let netSal = sal;
-        if (cashInHand > 0) {
-          deduction = Math.min(sal, cashInHand);
-          netSal = sal - deduction;
-          remainingCashAfterSalary = cashInHand - deduction;
-        }
-
-        if (e.salary_payer === 'mohsan') {
-          totalNetSalaryPaidByMohsan += netSal;
-        } else if (e.salary_payer === 'muzmal') {
-          totalNetSalaryPaidByMuzmal += netSal;
-        }
-      }
-
       totalRemainingEmpCash += remainingCashAfterSalary;
     });
 
