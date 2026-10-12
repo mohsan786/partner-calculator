@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>Asaan Partnership Calculator | آسان پارٹنرشپ حساب کتاب</title>
   <style>
     :root {
@@ -310,6 +313,9 @@
     <div class="ratio-badge">
       حسابی تناسب (Ratio): محسن = 1/3 (33.33%) | مزمل = 2/3 (66.67%)
     </div>
+    <div style="margin-top: 6px; font-size: 11px; color: #15803d; font-weight: bold;">
+      ⚡ Latest Version v2.3 (Smooth Real-Time Typing)
+    </div>
   </div>
 
   <!-- Quick Action Buttons -->
@@ -524,22 +530,22 @@
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
           <div class="form-group">
             <label class="form-label">محسن نے ایڈوانس دیا</label>
-            <input type="number" id="inp_${emp.id}_adv_m" class="form-input" value="${emp.adv_mohsan || 0}" oninput="calculate()">
+            <input type="number" id="inp_${emp.id}_adv_m" class="form-input" placeholder="0" value="${emp.adv_mohsan > 0 ? emp.adv_mohsan : ''}" oninput="calculate()">
           </div>
           <div class="form-group">
             <label class="form-label">مزمل نے ایڈوانس دیا</label>
-            <input type="number" id="inp_${emp.id}_adv_z" class="form-input" value="${emp.adv_muzmal || 0}" oninput="calculate()">
+            <input type="number" id="inp_${emp.id}_adv_z" class="form-input" placeholder="0" value="${emp.adv_muzmal > 0 ? emp.adv_muzmal : ''}" oninput="calculate()">
           </div>
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
           <div class="form-group">
             <label class="form-label">خریداری / خرچہ</label>
-            <input type="number" id="inp_${emp.id}_pur" class="form-input" value="${emp.purchases || 0}" oninput="calculate()">
+            <input type="number" id="inp_${emp.id}_pur" class="form-input" placeholder="0" value="${emp.purchases > 0 ? emp.purchases : ''}" oninput="calculate()">
           </div>
           <div class="form-group">
             <label class="form-label">براہ راست آمدنی (اگر ملی)</label>
-            <input type="number" id="inp_${emp.id}_inc" class="form-input" value="${emp.direct_income || 0}" oninput="calculate()">
+            <input type="number" id="inp_${emp.id}_inc" class="form-input" placeholder="0" value="${emp.direct_income > 0 ? emp.direct_income : ''}" oninput="calculate()">
           </div>
         </div>
 
@@ -556,12 +562,12 @@
               ماہانہ تنخواہ (Salary)
               <span class="form-sub">اگر تنخواہ میں سے کٹوتی کرنی ہو تو یہاں لکھیں</span>
             </label>
-            <input type="number" id="inp_${emp.id}_sal" class="form-input" value="${emp.salary || 0}" oninput="calculate()">
+            <input type="number" id="inp_${emp.id}_sal" class="form-input" placeholder="0" value="${emp.salary > 0 ? emp.salary : ''}" oninput="calculate()">
           </div>
 
-          <div id="box_${emp.id}_sal_details" style="display: none;">
+          <div id="box_${emp.id}_sal_details">
             <div style="background: var(--success-light); border: 1px solid #bbf7d0; padding: 8px; border-radius: 6px; font-size: 12px; margin-bottom: 8px;">
-              <div>تنخواہ سے کٹوتی: <strong id="badge_${emp.id}_ded">-Rs. 0.00</strong></div>
+              <div>تنخواہ سے کٹوتی: <strong id="badge_${emp.id}_ded">Rs. 0.00</strong></div>
               <div style="font-size: 13px; font-weight: 700; color: #166534; margin-top: 2px;">
                 ادا کرنے والی نیٹ تنخواہ: <span id="badge_${emp.id}_net">Rs. 0.00</span>
               </div>
@@ -679,10 +685,9 @@
 
       let remainingCashAfterSalary = rem;
       let netSal = 0;
+      let deduction = 0;
 
       if (sal > 0) {
-        if (boxSal) boxSal.style.display = 'block';
-        let deduction = 0;
         if (rem > 0) {
           deduction = Math.min(sal, rem);
           netSal = sal - deduction;
@@ -691,17 +696,15 @@
           netSal = sal;
         }
 
-        if (badgeDed) badgeDed.textContent = '-' + formatPKR(deduction);
-        if (badgeNet) badgeNet.textContent = formatPKR(netSal);
-
         if (payer === 'mohsan') {
           totalNetSalaryPaidByMohsan += netSal;
         } else if (payer === 'muzmal') {
           totalNetSalaryPaidByMuzmal += netSal;
         }
-      } else {
-        if (boxSal) boxSal.style.display = 'none';
       }
+
+      if (badgeDed) badgeDed.textContent = (deduction > 0 ? '-' : '') + formatPKR(deduction);
+      if (badgeNet) badgeNet.textContent = formatPKR(netSal);
 
       totalAdvByMohsan += advM;
       totalAdvByMuzmal += advZ;
