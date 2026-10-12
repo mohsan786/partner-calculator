@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Asaan Partnership Calculator | آسان پارٹنرشپ حساب کتاب</title>
+  <style>
+    :root {
+      --primary: #1e40af;
+      --primary-light: #eff6ff;
+      --success: #15803d;
+      --success-light: #f0fdf4;
+      --danger: #b91c1c;
+      --danger-light: #fef2f2;
+      --warning: #b45309;
+      --warning-light: #fffbeb;
+      --slate-50: #f8fafc;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-700: #334155;
+      --slate-800: #1e293b;
+      --slate-900: #0f172a;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    body {
+      background-color: #f8fafc;
+      color: var(--slate-800);
+      line-height: 1.5;
+      padding: 16px;
+    }
+
+    .container {
+      max-width: 950px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+      padding: 20px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      border: 1px solid var(--slate-200);
+    }
+
+    .header h1 {
+      font-size: 24px;
+      color: var(--slate-900);
+      margin-bottom: 4px;
+    }
+
+    .header p {
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    .ratio-badge {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 6px 14px;
+      background: #e0e7ff;
+      color: #3730a3;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    /* Grid for Inputs */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 18px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      border: 1px solid var(--slate-200);
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--slate-900);
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--slate-100);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-mohsan { border-top: 4px solid #2563eb; }
+    .card-muzmal { border-top: 4px solid #7c3aed; }
+    .card-employee { border-top: 4px solid #ea580c; position: relative; }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--slate-700);
+      margin-bottom: 4px;
+    }
+
+    .form-sub {
+      font-size: 11px;
+      color: #64748b;
+      font-weight: normal;
+      display: block;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 9px 12px;
+      font-size: 14px;
+      font-weight: 600;
+      border: 1.5px solid var(--slate-200);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--slate-900);
+      transition: all 0.2s;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+    }
+
+    /* Action Buttons */
+    .actions-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 24px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 10px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-primary { background: #2563eb; color: white; }
+    .btn-primary:hover { background: #1d4ed8; }
+
+    .btn-secondary { background: #e2e8f0; color: var(--slate-700); }
+    .btn-secondary:hover { background: #cbd5e1; }
+
+    .btn-demo { background: #10b981; color: white; }
+    .btn-demo:hover { background: #059669; }
+
+    .btn-danger-sm {
+      background: #fee2e2;
+      color: #b91c1c;
+      border: 1px solid #fca5a5;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .btn-danger-sm:hover { background: #fecaca; }
+
+    /* Section divider */
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--slate-200);
+    }
+    .section-header h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--slate-900);
+    }
+
+    /* Live Output Results */
+    .result-section {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      border: 1px solid var(--slate-200);
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+      margin-bottom: 24px;
+    }
+
+    .decision-box {
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      color: white;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .decision-badge {
+      display: inline-block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 4px 10px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 20px;
+      margin-bottom: 8px;
+    }
+
+    .decision-text {
+      font-size: 22px;
+      font-weight: 700;
+      color: #38bdf8;
+      line-height: 1.4;
+      margin-top: 4px;
+    }
+
+    /* Summary Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: var(--slate-50);
+      padding: 12px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--slate-200);
+    }
+
+    .stat-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: #64748b;
+      margin-bottom: 4px;
+    }
+
+    .stat-value {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--slate-900);
+    }
+
+    .val-profit { color: var(--success); }
+    .val-loss { color: var(--danger); }
+
+    /* Detailed Arithmetic Breakdown */
+    .breakdown-box {
+      background: #f8fafc;
+      border: 1px solid var(--slate-200);
+      border-radius: 8px;
+      padding: 16px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.8;
+      color: var(--slate-800);
+      white-space: pre-wrap;
+      overflow-x: auto;
+    }
+
+    .calc-pill {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+    .pill-green { background: #dcfce7; color: #166534; }
+    .pill-yellow { background: #fef9c3; color: #854d0e; }
+    .pill-blue { background: #dbeafe; color: #1e40af; }
+
+    @media (max-width: 650px) {
+      .decision-text { font-size: 18px; }
+      .actions-bar { flex-direction: column; }
+      .btn { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  
+  <!-- Header -->
+  <div class="header">
+    <h1>آسان پارٹنرشپ اور ایمپلائی کیلکولیٹر</h1>
+    <p>Partnership Settlement & Multi-Employee Advance / Salary Deduction Calculator</p>
+    <div class="ratio-badge">
+      حسابی تناسب (Ratio): محسن = 1/3 (33.33%) | مزمل = 2/3 (66.67%)
+    </div>
+  </div>
+
+  <!-- Quick Action Buttons -->
+  <div class="actions-bar">
+    <button class="btn btn-demo" onclick="fillUserValues()">آپ کے دیے گئے نمبرز بھریں (Load Your Scenario)</button>
+    <button class="btn btn-secondary" onclick="resetForm()">سب کلیئر کریں (Reset All)</button>
+  </div>
+
+  <!-- Section 1: Partners -->
+  <div class="section-header">
+    <h2>۱. پارٹنرز کا کھاتہ (Partners Accounts)</h2>
+  </div>
+
+  <div class="grid">
+    <!-- Card 1: Mohsan (You) -->
+    <div class="card card-mohsan">
+      <div class="card-title">
+        <span>محسن (آپ) - Mohsan</span>
+        <span style="font-size: 12px; color: #2563eb;">Share: 1/3</span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">
+          آپ کے پاس آئی آمدنی (Income Received)
+          <span class="form-sub">جو کسٹمر کے پیسے آپ کی جیب / اکاؤنٹ میں آئے</span>
+        </label>
+        <input type="number" id="m_income" class="form-input" placeholder="0" value="0" oninput="calculate()">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">
+          آپ کے اپنے لگے ہوئے پیسے (Personal Expense)
+          <span class="form-sub">جو آپ نے ذاتی جیب سے بزنس کا خرچہ کیا (ایڈوانس کے علاوہ)</span>
+        </label>
+        <input type="number" id="m_expense" class="form-input" placeholder="0" value="0" oninput="calculate()">
+      </div>
+    </div>
+
+    <!-- Card 2: Muzzmal (Friend) -->
+    <div class="card card-muzmal">
+      <div class="card-title">
+        <span>مزمل (دوست) - Muzzmal</span>
+        <span style="font-size: 12px; color: #7c3aed;">Share: 2/3</span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">
+          دوست کے پاس آئی آمدنی (Income Received)
+          <span class="form-sub">جو کسٹمر کے پیسے مزمل کے پاس آئے</span>
+        </label>
+        <input type="number" id="z_income" class="form-input" placeholder="0" value="0" oninput="calculate()">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">
+          دوست کے اپنے لگے ہوئے پیسے (Personal Expense)
+          <span class="form-sub">جو مزمل نے ذاتی جیب سے بزنس کا خرچہ کیا (ایڈوانس کے علاوہ)</span>
+        </label>
+        <input type="number" id="z_expense" class="form-input" placeholder="0" value="0" oninput="calculate()">
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 2: Employees -->
+  <div class="section-header">
+    <h2>۲. ایمپلائز کا کھاتہ، ایڈوانس اور تنخواہ سے کٹوتی (Employees Advance & Salary Deductions)</h2>
+    <button class="btn btn-primary" style="padding: 6px 12px; font-size: 13px;" onclick="addEmployee()">+ نیا ایمپلائی شامل کریں</button>
+  </div>
+
+  <!-- Dynamic Employee Cards Container -->
+  <div class="grid" id="employeesContainer">
+    <!-- Rendered via JS -->
+  </div>
+
+  <!-- Live Output Results -->
+  <div class="result-section">
+
+    <!-- Final Decision Box -->
+    <div class="decision-box">
+      <div class="decision-badge">حتمی فیصلہ (Final Settlement Directive)</div>
+      <div class="decision-text" id="finalDecisionText">
+        نمبرز درج کریں، فیصلہ یہاں خود بخود آ جائے گا...
+      </div>
+    </div>
+
+    <!-- Summary Statistics Grid -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">کل آمدنی (Total Income)</div>
+        <div class="stat-value" id="statTotalIncome">Rs. 0.00</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">کل خرچے (Total Expenses)</div>
+        <div class="stat-value" id="statTotalExpenses">Rs. 0.00</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">نفع یا نقصان (Net P&L)</div>
+        <div class="stat-value" id="statNetProfit">Rs. 0.00</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">محسن کا حصہ (1/3 Share)</div>
+        <div class="stat-value" id="statMohsanShare">Rs. 0.00</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">مزمل کا حصہ (2/3 Share)</div>
+        <div class="stat-value" id="statMuzmalShare">Rs. 0.00</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">ایمپلائز کے پاس بقایا کیش</div>
+        <div class="stat-value" id="statTotalEmpCash">Rs. 0.00</div>
+      </div>
+    </div>
+
+    <!-- Step-by-Step Transparent Verification -->
+    <h3 style="font-size: 15px; margin-bottom: 10px; color: var(--slate-900);">
+      مکمل حسابی تفصیل اور تصدیق (Step-by-Step Proof)
+    </h3>
+    <div class="breakdown-box" id="breakdownDetails">
+      تفصیلات یہاں ظاہر ہوں گی...
+    </div>
+
+  </div>
+
+  <!-- Settings for Ratios (Optional) -->
+  <div class="card" style="margin-top: 20px;">
+    <details>
+      <summary style="font-weight: 600; cursor: pointer; color: #2563eb;">
+        ⚙️ پارٹنرشپ شیئر تبدیل کرنا ہو؟ (Click to change 1/3 and 2/3 ratio)
+      </summary>
+      <div style="display: flex; gap: 16px; margin-top: 14px; flex-wrap: wrap;">
+        <div>
+          <label style="font-size: 12px; font-weight: 600;">محسن کا حصہ (Mohsan Share):</label>
+          <div style="display: flex; gap: 4px; align-items: center; margin-top: 4px;">
+            <input type="number" id="ratio_m_num" value="1" style="width: 50px; padding: 4px;" oninput="calculate()"> /
+            <input type="number" id="ratio_m_den" value="3" style="width: 50px; padding: 4px;" oninput="calculate()">
+          </div>
+        </div>
+        <div>
+          <label style="font-size: 12px; font-weight: 600;">مزمل کا حصہ (Muzzmal Share):</label>
+          <div style="display: flex; gap: 4px; align-items: center; margin-top: 4px;">
+            <input type="number" id="ratio_z_num" value="2" style="width: 50px; padding: 4px;" oninput="calculate()"> /
+            <input type="number" id="ratio_z_den" value="3" style="width: 50px; padding: 4px;" oninput="calculate()">
+          </div>
+        </div>
+      </div>
+    </details>
+  </div>
+
+</div>
+
+<script>
+  // Initial default employees
+  let employees = [
+    { id: 'emp_1', name: 'ایاز (Ayaz)', adv_mohsan: 4000, adv_muzmal: 10000, direct_income: 1500, purchases: 13770, salary: 0, salary_payer: 'none' },
+    { id: 'emp_2', name: 'اشرف (Ashraf)', adv_mohsan: 0, adv_muzmal: 0, direct_income: 0, purchases: 0, salary: 0, salary_payer: 'none' },
+    { id: 'emp_3', name: 'جاوید (Javed)', adv_mohsan: 0, adv_muzmal: 0, direct_income: 0, purchases: 0, salary: 0, salary_payer: 'none' }
+  ];
+
+  function formatPKR(val) {
+    if (isNaN(val)) val = 0;
+    const isNeg = val < 0;
+    const formatted = Math.abs(val).toLocaleString('en-PK', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+    return (isNeg ? '-' : '') + 'Rs. ' + formatted;
+  }
+
+  function addEmployee() {
+    const name = prompt('نئے ایمپلائی کا نام لکھیں (Enter Employee Name):');
+    if (!name || !name.trim()) return;
+    employees.push({
+      id: 'emp_' + Date.now(),
+      name: name.trim(),
+      adv_mohsan: 0,
+      adv_muzmal: 0,
+      direct_income: 0,
+      purchases: 0,
+      salary: 0,
+      salary_payer: 'none'
+    });
+    renderEmployees();
+    calculate();
+  }
+
+  function removeEmployee(id) {
+    if (employees.length <= 1) {
+      alert('کم از کم ایک ایمپلائی ہونا ضروری ہے۔');
+      return;
+    }
+    if (confirm('کیا آپ اس ایمپلائی کو ہٹانا چاہتے ہیں؟')) {
+      employees = employees.filter(e => e.id !== id);
+      renderEmployees();
+      calculate();
+    }
+  }
+
+  function renderEmployees() {
+    const container = document.getElementById('employeesContainer');
+    container.innerHTML = employees.map(emp => {
+      // Calculate remaining advance for this employee
+      const cashReceived = (emp.adv_mohsan || 0) + (emp.adv_muzmal || 0) + (emp.direct_income || 0);
+      const remainingAdvance = cashReceived - (emp.purchases || 0);
+      
+      // Salary deduction
+      const salary = emp.salary || 0;
+      let netSalary = 0;
+      let deduction = 0;
+      if (salary > 0) {
+        if (remainingAdvance > 0) {
+          deduction = Math.min(salary, remainingAdvance);
+          netSalary = salary - deduction;
+        } else {
+          netSalary = salary;
+        }
+      }
+
+      return `
+        <div class="card card-employee">
+          <div class="card-title">
+            <span>👤 ${emp.name}</span>
+            <button class="btn-danger-sm" onclick="removeEmployee('${emp.id}')">ہٹائیں (Remove)</button>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <div class="form-group">
+              <label class="form-label">محسن نے ایڈوانس دیا</label>
+              <input type="number" class="form-input" value="${emp.adv_mohsan || 0}" 
+                     oninput="updateEmpField('${emp.id}', 'adv_mohsan', this.value)">
+            </div>
+            <div class="form-group">
+              <label class="form-label">مزمل نے ایڈوانس دیا</label>
+              <input type="number" class="form-input" value="${emp.adv_muzmal || 0}" 
+                     oninput="updateEmpField('${emp.id}', 'adv_muzmal', this.value)">
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <div class="form-group">
+              <label class="form-label">خریداری / خرچہ</label>
+              <input type="number" class="form-input" value="${emp.purchases || 0}" 
+                     oninput="updateEmpField('${emp.id}', 'purchases', this.value)">
+            </div>
+            <div class="form-group">
+              <label class="form-label">براہ راست آمدنی (اگر ملی)</label>
+              <input type="number" class="form-input" value="${emp.direct_income || 0}" 
+                     oninput="updateEmpField('${emp.id}', 'direct_income', this.value)">
+            </div>
+          </div>
+
+          <!-- Advance Status Badge -->
+          <div style="background: var(--slate-100); padding: 8px; border-radius: 6px; margin-bottom: 10px; font-size: 12px; display: flex; justify-content: space-between; align-items: center;">
+            <span>ایڈوانس سے بچا کیش:</span>
+            <strong style="color: ${remainingAdvance > 0 ? 'var(--warning)' : 'var(--success)'}; font-size: 13px;">
+              ${formatPKR(remainingAdvance)}
+            </strong>
+          </div>
+
+          <!-- Salary & Deduction Section -->
+          <div style="border-top: 1px dashed var(--slate-200); padding-top: 10px;">
+            <div class="form-group">
+              <label class="form-label">
+                ماہانہ تنخواہ (Salary)
+                <span class="form-sub">اگر تنخواہ میں سے کٹوتی کرنی ہو تو یہاں لکھیں</span>
+              </label>
+              <input type="number" class="form-input" value="${emp.salary || 0}" 
+                     oninput="updateEmpField('${emp.id}', 'salary', this.value)">
+            </div>
+
+            ${salary > 0 ? `
+              <div style="background: var(--success-light); border: 1px solid #bbf7d0; padding: 8px; border-radius: 6px; font-size: 12px; margin-bottom: 8px;">
+                <div>تنخواہ سے کٹوتی: <strong>-${formatPKR(deduction)}</strong></div>
+                <div style="font-size: 13px; font-weight: 700; color: #166534; margin-top: 2px;">
+                  ادا کرنے والی نیٹ تنخواہ: ${formatPKR(netSalary)}
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">یہ نیٹ تنخواہ کس نے ادا کی؟</label>
+                <select class="form-input" onchange="updateEmpField('${emp.id}', 'salary_payer', this.value)">
+                  <option value="none" ${emp.salary_payer === 'none' ? 'selected' : ''}>ابھی ادا نہیں کی (Pending)</option>
+                  <option value="mohsan" ${emp.salary_payer === 'mohsan' ? 'selected' : ''}>محسن نے اپنی جیب سے دی</option>
+                  <option value="muzmal" ${emp.salary_payer === 'muzmal' ? 'selected' : ''}>مزمل نے اپنی جیب سے دی</option>
+                  <option value="common" ${emp.salary_payer === 'common' ? 'selected' : ''}>مشترکہ آمدنی / گلے سے دی</option>
+                </select>
+              </div>
+            ` : ''}
+          </div>
+
+        </div>
+      `;
+    }).join('');
+  }
+
+  function updateEmpField(id, field, value) {
+    const emp = employees.find(e => e.id === id);
+    if (emp) {
+      if (field === 'salary_payer') {
+        emp[field] = value;
+      } else {
+        emp[field] = parseFloat(value) || 0;
+      }
+      // Re-render if salary changed to show deduction box
+      if (field === 'salary') {
+        renderEmployees();
+      }
+      calculate();
+    }
+  }
+
+  function fillUserValues() {
+    document.getElementById('m_income').value = 3500;
+    document.getElementById('m_expense').value = 5000;
+    document.getElementById('z_income').value = 19310;
+    document.getElementById('z_expense').value = 32327;
+
+    employees = [
+      { id: 'emp_1', name: 'ایاز (Ayaz)', adv_mohsan: 4000, adv_muzmal: 10000, direct_income: 1500, purchases: 13770, salary: 0, salary_payer: 'none' },
+      { id: 'emp_2', name: 'اشرف (Ashraf)', adv_mohsan: 0, adv_muzmal: 0, direct_income: 0, purchases: 0, salary: 0, salary_payer: 'none' },
+      { id: 'emp_3', name: 'جاوید (Javed)', adv_mohsan: 0, adv_muzmal: 0, direct_income: 0, purchases: 0, salary: 0, salary_payer: 'none' }
+    ];
+
+    renderEmployees();
+    calculate();
+  }
+
+  function resetForm() {
+    document.getElementById('m_income').value = 0;
+    document.getElementById('m_expense').value = 0;
+    document.getElementById('z_income').value = 0;
+    document.getElementById('z_expense').value = 0;
+
+    employees.forEach(e => {
+      e.adv_mohsan = 0;
+      e.adv_muzmal = 0;
+      e.direct_income = 0;
+      e.purchases = 0;
+      e.salary = 0;
+      e.salary_payer = 'none';
+    });
+
+    renderEmployees();
+    calculate();
+  }
+
+  function calculate() {
+    const m_income = parseFloat(document.getElementById('m_income').value) || 0;
+    const m_expense = parseFloat(document.getElementById('m_expense').value) || 0;
+    const z_income = parseFloat(document.getElementById('z_income').value) || 0;
+    const z_expense = parseFloat(document.getElementById('z_expense').value) || 0;
+
+    const m_num = parseFloat(document.getElementById('ratio_m_num').value) || 1;
+    const m_den = parseFloat(document.getElementById('ratio_m_den').value) || 3;
+    const z_num = parseFloat(document.getElementById('ratio_z_num').value) || 2;
+    const z_den = parseFloat(document.getElementById('ratio_z_den').value) || 3;
+
+    // Aggregate Employee figures
+    let totalEmpPurchases = 0;
+    let totalEmpDirectIncome = 0;
+    let totalAdvByMohsan = 0;
+    let totalAdvByMuzmal = 0;
+    let totalEmpSalaries = 0;
+    let totalNetSalaryPaidByMohsan = 0;
+    let totalNetSalaryPaidByMuzmal = 0;
+    let totalRemainingEmpCash = 0;
+
+    employees.forEach(e => {
+      const advM = e.adv_mohsan || 0;
+      const advZ = e.adv_muzmal || 0;
+      const inc = e.direct_income || 0;
+      const pur = e.purchases || 0;
+      const sal = e.salary || 0;
+
+      totalAdvByMohsan += advM;
+      totalAdvByMuzmal += advZ;
+      totalEmpDirectIncome += inc;
+      totalEmpPurchases += pur;
+      totalEmpSalaries += sal;
+
+      const cashInHand = advM + advZ + inc - pur;
+      let remainingCashAfterSalary = cashInHand;
+
+      if (sal > 0) {
+        let deduction = 0;
+        let netSal = sal;
+        if (cashInHand > 0) {
+          deduction = Math.min(sal, cashInHand);
+          netSal = sal - deduction;
+          remainingCashAfterSalary = cashInHand - deduction;
+        }
+
+        if (e.salary_payer === 'mohsan') {
+          totalNetSalaryPaidByMohsan += netSal;
+        } else if (e.salary_payer === 'muzmal') {
+          totalNetSalaryPaidByMuzmal += netSal;
+        }
+      }
+
+      totalRemainingEmpCash += remainingCashAfterSalary;
+    });
+
+    // Save state
+    localStorage.setItem('multi_emp_calc_data', JSON.stringify({
+      m_income, m_expense, z_income, z_expense, employees
+    }));
+
+    // 1. Total Income
+    const totalIncome = m_income + z_income + totalEmpDirectIncome;
+
+    // 2. Total Business Expenses
+    // (Mohsan personal expense + Muzzmal personal expense + All Employee Purchases + All Employee Salaries)
+    const totalExpenses = m_expense + z_expense + totalEmpPurchases + totalEmpSalaries;
+
+    // 3. Net Profit or Loss
+    const netProfitOrLoss = totalIncome - totalExpenses;
+
+    // 4. Shares
+    const m_profitShare = (netProfitOrLoss * m_num) / m_den;
+    const z_profitShare = (netProfitOrLoss * z_num) / z_den;
+
+    // 5. Out of pocket contributions
+    const m_outOfPocket = m_expense + totalAdvByMohsan + totalNetSalaryPaidByMohsan;
+    const m_netCashGivenToBiz = m_outOfPocket - m_income;
+    const m_finalBalance = m_netCashGivenToBiz + m_profitShare;
+
+    const z_outOfPocket = z_expense + totalAdvByMuzmal + totalNetSalaryPaidByMuzmal;
+    const z_netCashGivenToBiz = z_outOfPocket - z_income;
+    const z_finalBalance = z_netCashGivenToBiz + z_profitShare;
+
+    // Update Summary Stats
+    document.getElementById('statTotalIncome').textContent = formatPKR(totalIncome);
+    document.getElementById('statTotalExpenses').textContent = formatPKR(totalExpenses);
+
+    const netEl = document.getElementById('statNetProfit');
+    netEl.textContent = formatPKR(netProfitOrLoss);
+    netEl.className = 'stat-value ' + (netProfitOrLoss >= 0 ? 'val-profit' : 'val-loss');
+
+    const mShareEl = document.getElementById('statMohsanShare');
+    mShareEl.textContent = formatPKR(m_profitShare);
+    mShareEl.className = 'stat-value ' + (m_profitShare >= 0 ? 'val-profit' : 'val-loss');
+
+    const zShareEl = document.getElementById('statMuzmalShare');
+    zShareEl.textContent = formatPKR(z_profitShare);
+    zShareEl.className = 'stat-value ' + (z_profitShare >= 0 ? 'val-profit' : 'val-loss');
+
+    document.getElementById('statTotalEmpCash').textContent = formatPKR(totalRemainingEmpCash);
+
+    // Decision Statement
+    let decisionText = '';
+    const mBalRound = Math.round(m_finalBalance * 100) / 100;
+    const zBalRound = Math.round(z_finalBalance * 100) / 100;
+    const empRound = Math.round(totalRemainingEmpCash * 100) / 100;
+
+    if (mBalRound === 0 && zBalRound === 0 && empRound === 0) {
+      decisionText = "سب کا حساب بالکل برابر ہے! کوئی لین دین باقی نہیں۔";
+    } else if (mBalRound < 0 && zBalRound > 0) {
+      const mohsanDega = Math.abs(mBalRound);
+      const empDega = empRound > 0 ? empRound : 0;
+      const muzmalLega = zBalRound;
+      
+      decisionText = `👉 محسن دے گا: ${formatPKR(mohsanDega)}\n`;
+      if (empDega > 0) {
+        decisionText += `👉 ایمپلائز واپس کریں گے / تنخواہ سے کٹے گا: ${formatPKR(empDega)}\n`;
+      }
+      decisionText += `👉 مزمل کو ملیں گے: ${formatPKR(muzmalLega)}`;
+    } else if (zBalRound < 0 && mBalRound > 0) {
+      const muzmalDega = Math.abs(zBalRound);
+      const empDega = empRound > 0 ? empRound : 0;
+      const mohsanLega = mBalRound;
+      
+      decisionText = `👉 مزمل دے گا: ${formatPKR(muzmalDega)}\n`;
+      if (empDega > 0) {
+        decisionText += `👉 ایمپلائز واپس کریں گے / تنخواہ سے کٹے گا: ${formatPKR(empDega)}\n`;
+      }
+      decisionText += `👉 محسن کو ملیں گے: ${formatPKR(mohsanLega)}`;
+    } else {
+      decisionText = `محسن کا بیلنس: ${formatPKR(m_finalBalance)} | مزمل کا بیلنس: ${formatPKR(z_finalBalance)} | ایمپلائز بقایا کیش: ${formatPKR(totalRemainingEmpCash)}`;
+    }
+
+    document.getElementById('finalDecisionText').innerText = decisionText;
+
+    // Detailed Breakdown text
+    let bd = '';
+    bd += `========================================================================\n`;
+    bd += `                     حساب کتاب کی مکمل تصدیق (VERIFICATION)\n`;
+    bd += `========================================================================\n\n`;
+
+    bd += `1. آمدنی (INCOME):\n`;
+    bd += `   محسن کے پاس آئی آمدنی:                 +${formatPKR(m_income)}\n`;
+    bd += `   مزمل کے پاس آئی آمدنی:                 +${formatPKR(z_income)}\n`;
+    bd += `   ایمپلائز کے پاس آئی براہ راست آمدنی:   +${formatPKR(totalEmpDirectIncome)}\n`;
+    bd += `   ---------------------------------------------------------------------\n`;
+    bd += `   کل کاروباری آمدنی (Total Income):      = ${formatPKR(totalIncome)}\n\n`;
+
+    bd += `2. خرچے (EXPENSES):\n`;
+    bd += `   محسن کا ذاتی خرچہ:                     +${formatPKR(m_expense)}\n`;
+    bd += `   مزمل کا ذاتی خرچہ:                     +${formatPKR(z_expense)}\n`;
+    bd += `   ایمپلائز کی خریداریاں / خرچے:          +${formatPKR(totalEmpPurchases)}\n`;
+    if (totalEmpSalaries > 0) {
+      bd += `   ایمپلائز کی تنخواہیں (Salaries):       +${formatPKR(totalEmpSalaries)}\n`;
+    }
+    bd += `   ---------------------------------------------------------------------\n`;
+    bd += `   کل کاروباری خرچے (Total Expenses):     = ${formatPKR(totalExpenses)}\n\n`;
+
+    bd += `3. نفع یا نقصان (NET PROFIT / LOSS):\n`;
+    bd += `   ${formatPKR(totalIncome)} - ${formatPKR(totalExpenses)} = ${formatPKR(netProfitOrLoss)} (${netProfitOrLoss >= 0 ? 'نفع' : 'نقصان'})\n\n`;
+    bd += `   محسن کا شیئر (${m_num}/${m_den}):                   = ${formatPKR(m_profitShare)}\n`;
+    bd += `   مزمل کا شیئر (${z_num}/${z_den}):                   = ${formatPKR(z_profitShare)}\n\n`;
+
+    bd += `4. ایمپلائز کا تفصیلی کھاتہ (EMPLOYEES DETAILS):\n`;
+    employees.forEach(e => {
+      const advTotal = (e.adv_mohsan || 0) + (e.adv_muzmal || 0) + (e.direct_income || 0);
+      const rem = advTotal - (e.purchases || 0);
+      bd += `   • ${e.name}:\n`;
+      bd += `     ایڈوانس ملا: ${formatPKR(advTotal)} | خرچہ کیا: ${formatPKR(e.purchases || 0)} | بچا کیش: ${formatPKR(rem)}\n`;
+      if ((e.salary || 0) > 0) {
+        const ded = Math.min(e.salary, Math.max(0, rem));
+        bd += `     تنخواہ: ${formatPKR(e.salary)} | کٹوتی ہوئی: -${formatPKR(ded)} | ادا کرنے والی نیٹ تنخواہ: ${formatPKR(e.salary - ded)}\n`;
+      }
+    });
+    bd += `   کل ایمپلائز کے پاس بقایا کیش:          = ${formatPKR(totalRemainingEmpCash)}\n\n`;
+
+    bd += `5. محسن کا ذاتی کھاتہ (MOHSAN STATEMENT):\n`;
+    bd += `   ذاتی جیب سے خرچہ کیا:                  +${formatPKR(m_expense)}\n`;
+    bd += `   ایمپلائز کو ایڈوانس دیا:               +${formatPKR(totalAdvByMohsan)}\n`;
+    if (totalNetSalaryPaidByMohsan > 0) {
+      bd += `   نیٹ تنخواہ اپنی جیب سے دی:             +${formatPKR(totalNetSalaryPaidByMohsan)}\n`;
+    }
+    bd += `   کل جیب سے لگایا:                       = ${formatPKR(m_outOfPocket)}\n`;
+    bd += `   منفی آمدنی جو جیب میں رکھی:            -${formatPKR(m_income)}\n`;
+    bd += `   نیٹ پیسہ جو بزنس کو دیا:               = ${formatPKR(m_netCashGivenToBiz)}\n`;
+    bd += `   نفع / نقصان کا حصہ:                    ${m_profitShare >= 0 ? '+' : ''}${formatPKR(m_profitShare)}\n`;
+    bd += `   ---------------------------------------------------------------------\n`;
+    bd += `   محسن کا حتمی کھاتہ (Final Balance):    = ${formatPKR(m_finalBalance)} (${m_finalBalance < 0 ? 'دینے ہیں' : 'لینے ہیں'})\n\n`;
+
+    bd += `6. مزمل کا ذاتی کھاتہ (MUZZMAL STATEMENT):\n`;
+    bd += `   ذاتی جیب سے خرچہ کیا:                  +${formatPKR(z_expense)}\n`;
+    bd += `   ایمپلائز کو ایڈوانس دیا:               +${formatPKR(totalAdvByMuzmal)}\n`;
+    if (totalNetSalaryPaidByMuzmal > 0) {
+      bd += `   نیٹ تنخواہ اپنی جیب سے دی:             +${formatPKR(totalNetSalaryPaidByMuzmal)}\n`;
+    }
+    bd += `   کل جیب سے لگایا:                       = ${formatPKR(z_outOfPocket)}\n`;
+    bd += `   منفی آمدنی جو جیب میں رکھی:            -${formatPKR(z_income)}\n`;
+    bd += `   نیٹ پیسہ جو بزنس کو دیا:               = ${formatPKR(z_netCashGivenToBiz)}\n`;
+    bd += `   نفع / نقصان کا حصہ:                    ${z_profitShare >= 0 ? '+' : ''}${formatPKR(z_profitShare)}\n`;
+    bd += `   ---------------------------------------------------------------------\n`;
+    bd += `   مزمل کا حتمی کھاتہ (Final Balance):    = ${formatPKR(z_finalBalance)} (${z_finalBalance < 0 ? 'دینے ہیں' : 'لینے ہیں'})\n`;
+    bd += `========================================================================\n`;
+
+    document.getElementById('breakdownDetails').innerText = bd;
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    const raw = localStorage.getItem('multi_emp_calc_data');
+    if (raw) {
+      try {
+        const s = JSON.parse(raw);
+        document.getElementById('m_income').value = s.m_income || 0;
+        document.getElementById('m_expense').value = s.m_expense || 0;
+        document.getElementById('z_income').value = s.z_income || 0;
+        document.getElementById('z_expense').value = s.z_expense || 0;
+        if (s.employees && s.employees.length) {
+          employees = s.employees;
+        }
+      } catch(e) {}
+    } else {
+      fillUserValues();
+    }
+    renderEmployees();
+    calculate();
+  });
+</script>
+
+</body>
+</html>
