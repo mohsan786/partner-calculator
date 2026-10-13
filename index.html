@@ -333,10 +333,22 @@
     </div>
   </div>
 
-  <!-- Quick Action Buttons -->
-  <div class="actions-bar">
-    <button class="btn btn-demo" onclick="fillUserValues()">آپ کے دیے گئے نمبرز بھریں (Load Your Scenario)</button>
-    <button class="btn btn-secondary" onclick="resetForm()">سب کلیئر کریں (Reset All)</button>
+  <!-- Quick Action & Date Controls -->
+  <div style="background: white; border: 1px solid var(--slate-200); border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+    <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+      <div>
+        <label style="font-size: 12px; font-weight: 700; color: var(--slate-700); display: block; margin-bottom: 4px;">📅 کھاتے کی تاریخ (Account Date):</label>
+        <input type="date" id="calc_date" class="form-input" style="padding: 6px 10px; font-weight: 600;" onchange="calculate()">
+      </div>
+      <div>
+        <label style="font-size: 12px; font-weight: 700; color: var(--slate-700); display: block; margin-bottom: 4px;">📝 عنوان / مہینہ (Title / Note):</label>
+        <input type="text" id="calc_title" class="form-input" placeholder="مثلاً: اکتوبر 2026 کا حساب" style="padding: 6px 10px; min-width: 200px;" oninput="calculate()">
+      </div>
+    </div>
+    <div class="actions-bar" style="margin-bottom: 0;">
+      <button class="btn btn-demo" onclick="fillUserValues()">آپ کے دیے گئے نمبرز بھریں (Demo)</button>
+      <button class="btn btn-secondary" onclick="resetForm()">سب کلیئر کریں (Reset All)</button>
+    </div>
   </div>
 
   <!-- Section 1: Partners -->
@@ -752,8 +764,10 @@
     });
 
     // Save state
+    const calc_date = document.getElementById('calc_date') ? document.getElementById('calc_date').value : '';
+    const calc_title = document.getElementById('calc_title') ? document.getElementById('calc_title').value : '';
     localStorage.setItem('multi_emp_calc_data', JSON.stringify({
-      m_income, m_expense, z_income, z_expense, employees
+      m_income, m_expense, z_income, z_expense, calc_date, calc_title, employees
     }));
 
     // 1. Total Income
@@ -835,6 +849,10 @@
     let bd = '';
     bd += `========================================================================\n`;
     bd += `                     حساب کتاب کی مکمل تصدیق (VERIFICATION)\n`;
+    if (calc_title) {
+      bd += `                     عنوان / تفصیل: ${calc_title}\n`;
+    }
+    bd += `                     تاریخ (Account Date): ${calc_date || new Date().toISOString().split('T')[0]}\n`;
     bd += `========================================================================\n\n`;
 
     bd += `1. آمدنی (INCOME):\n`;
@@ -949,8 +967,13 @@
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     const today = new Date().toISOString().split('T')[0];
+    const customDate = document.getElementById('calc_date') ? document.getElementById('calc_date').value : '';
+    const fileDate = customDate || new Date().toISOString().split('T')[0];
+    const customTitle = document.getElementById('calc_title') ? document.getElementById('calc_title').value.trim() : '';
+    const titleSlug = customTitle ? `_${customTitle.replace(/[^a-zA-Z0-9\u0600-\u06FF]/g, '_')}` : '';
+    
     a.href = url;
-    a.download = `Partnership_Report_${today}.txt`;
+    a.download = `Partnership_Report_${fileDate}${titleSlug}.txt`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -967,10 +990,13 @@
     const r_m_den = parseFloat(document.getElementById('ratio_m_den').value) || 3;
     const r_z_num = parseFloat(document.getElementById('ratio_z_num').value) || 2;
     const r_z_den = parseFloat(document.getElementById('ratio_z_den').value) || 3;
+    const calc_date = document.getElementById('calc_date') ? document.getElementById('calc_date').value : '';
+    const calc_title = document.getElementById('calc_title') ? document.getElementById('calc_title').value : '';
 
     const backup = {
-      version: '2.4',
-      date: new Date().toISOString(),
+      version: '2.5',
+      date: calc_date || new Date().toISOString().split('T')[0],
+      calc_title,
       m_income, m_expense, z_income, z_expense,
       r_m_num, r_m_den, r_z_num, r_z_den,
       employees
@@ -979,9 +1005,9 @@
     const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    const today = new Date().toISOString().split('T')[0];
+    const fileDate = calc_date || new Date().toISOString().split('T')[0];
     a.href = url;
-    a.download = `Partner_Accounts_Backup_${today}.json`;
+    a.download = `Partner_Accounts_Backup_${fileDate}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -1002,6 +1028,8 @@
           document.getElementById('m_expense').value = data.m_expense || 0;
           document.getElementById('z_income').value = data.z_income || 0;
           document.getElementById('z_expense').value = data.z_expense || 0;
+          if (data.date && document.getElementById('calc_date')) document.getElementById('calc_date').value = data.date;
+          if (data.calc_title && document.getElementById('calc_title')) document.getElementById('calc_title').value = data.calc_title;
           if (data.r_m_num) document.getElementById('ratio_m_num').value = data.r_m_num;
           if (data.r_m_den) document.getElementById('ratio_m_den').value = data.r_m_den;
           if (data.r_z_num) document.getElementById('ratio_z_num').value = data.r_z_num;
@@ -1023,6 +1051,12 @@
   }
 
   window.addEventListener('DOMContentLoaded', () => {
+    // Set default date to today
+    const dateInput = document.getElementById('calc_date');
+    if (dateInput && !dateInput.value) {
+      dateInput.value = new Date().toISOString().split('T')[0];
+    }
+
     const raw = localStorage.getItem('multi_emp_calc_data');
     if (raw) {
       try {
@@ -1031,6 +1065,8 @@
         document.getElementById('m_expense').value = s.m_expense || 0;
         document.getElementById('z_income').value = s.z_income || 0;
         document.getElementById('z_expense').value = s.z_expense || 0;
+        if (s.calc_date && dateInput) dateInput.value = s.calc_date;
+        if (s.calc_title && document.getElementById('calc_title')) document.getElementById('calc_title').value = s.calc_title;
         if (s.employees && s.employees.length) {
           employees = s.employees;
         }
