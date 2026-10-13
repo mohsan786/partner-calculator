@@ -812,7 +812,21 @@
     bd += `   مزمل کا ذاتی خرچہ:                     +${formatPKR(z_expense)}\n`;
     bd += `   ایمپلائز کی خریداریاں / خرچے:          +${formatPKR(totalEmpPurchases)}\n`;
     if (totalEmpSalaries > 0) {
-      bd += `   ایمپلائز کی تنخواہیں (Salaries):       +${formatPKR(totalEmpSalaries)}\n`;
+      let totalDeductions = 0;
+      let totalNetSalaries = 0;
+      employees.forEach(e => {
+        const advTotal = (e.adv_mohsan || 0) + (e.adv_muzmal || 0) + (e.direct_income || 0);
+        const rem = advTotal - (e.purchases || 0);
+        if ((e.salary || 0) > 0) {
+          const ded = rem > 0 ? Math.min(e.salary, rem) : 0;
+          totalDeductions += ded;
+          totalNetSalaries += (e.salary - ded);
+        }
+      });
+      bd += `   ایمپلائز کی کل تنخواہ (Total Salary):  +${formatPKR(totalEmpSalaries)}\n`;
+      if (totalDeductions > 0) {
+        bd += `     └─ [کیش میں دی گئی نیٹ تنخواہ: ${formatPKR(totalNetSalaries)} + ایڈوانس سے کٹوتی: ${formatPKR(totalDeductions)}]\n`;
+      }
     }
     bd += `   ---------------------------------------------------------------------\n`;
     bd += `   کل کاروباری خرچے (Total Expenses):     = ${formatPKR(totalExpenses)}\n\n`;
