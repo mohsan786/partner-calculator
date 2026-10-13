@@ -295,10 +295,25 @@
     .pill-yellow { background: #fef9c3; color: #854d0e; }
     .pill-blue { background: #dbeafe; color: #1e40af; }
 
+    .btn-export { background: #0284c7; color: white; }
+    .btn-export:hover { background: #0369a1; }
+    .btn-copy { background: #475569; color: white; }
+    .btn-copy:hover { background: #334155; }
+    .btn-import { background: #f8fafc; color: #334155; border: 1px solid #cbd5e1; }
+    .btn-import:hover { background: #f1f5f9; }
+
     @media (max-width: 650px) {
       .decision-text { font-size: 18px; }
       .actions-bar { flex-direction: column; }
       .btn { width: 100%; }
+    }
+
+    /* Print / PDF Styling */
+    @media print {
+      body { background: white; color: black; }
+      .actions-bar, .btn, details, #fileInput { display: none !important; }
+      .card, .result-section { box-shadow: none !important; border: 1px solid #94a3b8 !important; page-break-inside: avoid; }
+      .decision-box { background: #0f172a !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
   </style>
 </head>
@@ -435,11 +450,33 @@
     </div>
 
     <!-- Step-by-Step Transparent Verification -->
-    <h3 style="font-size: 15px; margin-bottom: 10px; color: var(--slate-900);">
-      مکمل حسابی تفصیل اور تصدیق (Step-by-Step Proof)
-    </h3>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+      <h3 style="font-size: 15px; color: var(--slate-900); margin: 0;">
+        مکمل حسابی تفصیل اور تصدیق (Step-by-Step Proof)
+      </h3>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <button class="btn btn-copy" style="padding: 6px 12px; font-size: 13px;" onclick="copyReport()">📋 ٹیکسٹ کاپی کریں (Copy)</button>
+        <button class="btn btn-export" style="padding: 6px 12px; font-size: 13px;" onclick="downloadTxtReport()">📥 ٹیکسٹ فائل ڈاؤنلوڈ (TXT)</button>
+        <button class="btn btn-primary" style="padding: 6px 12px; font-size: 13px;" onclick="window.print()">🖨️ پرنٹ / PDF سیو کریں</button>
+      </div>
+    </div>
     <div class="breakdown-box" id="breakdownDetails">
       تفصیلات یہاں ظاہر ہوں گی...
+    </div>
+
+    <!-- Backup & Restore Data -->
+    <div style="background: var(--slate-50); border: 1px dashed var(--slate-300); border-radius: 8px; padding: 12px; margin-top: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+      <div>
+        <strong style="font-size: 13px; color: var(--slate-800);">💾 ڈیٹا بیک اپ اور محفوظ کرنا (Save & Backup Data):</strong>
+        <div style="font-size: 12px; color: var(--slate-600); margin-top: 2px;">
+          آپ تمام کھاتہ فائل کی شکل میں ڈاؤنلوڈ کر کے رکھ سکتے ہیں اور بعد میں دوبارہ لوڈ بھی کر سکتے ہیں۔
+        </div>
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <button class="btn btn-export" style="padding: 6px 12px; font-size: 13px;" onclick="exportDataBackup()">💾 بیک اپ ڈاؤنلوڈ (Save Backup)</button>
+        <button class="btn btn-import" style="padding: 6px 12px; font-size: 13px;" onclick="document.getElementById('fileInput').click()">📂 پرانا بیک اپ کھولیں (Load)</button>
+        <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="importDataBackup(event)">
+      </div>
     </div>
 
   </div>
@@ -877,6 +914,112 @@
     bd += `========================================================================\n`;
 
     document.getElementById('breakdownDetails').innerText = bd;
+  }
+
+  // Copy Verification Report to Clipboard
+  function copyReport() {
+    const text = document.getElementById('breakdownDetails').innerText;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => {
+        alert('✅ حسابی رپورٹ کلپ بورڈ پر کاپی ہو گئی ہے! آپ واٹس ایپ وغیرہ پر پیسٹ کر سکتے ہیں۔');
+      }).catch(() => fallbackCopy(text));
+    } else {
+      fallbackCopy(text);
+    }
+  }
+
+  function fallbackCopy(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand('copy');
+      alert('✅ حسابی رپورٹ کاپی ہو گئی ہے!');
+    } catch (e) {
+      alert('براہ کرم ٹیکسٹ کو خود سلیکٹ کر کے کاپی کر لیں۔');
+    }
+    document.body.removeChild(ta);
+  }
+
+  // Download Report as TXT File
+  function downloadTxtReport() {
+    const text = document.getElementById('breakdownDetails').innerText;
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const today = new Date().toISOString().split('T')[0];
+    a.href = url;
+    a.download = `Partnership_Report_${today}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  // Export Full Data State as JSON
+  function exportDataBackup() {
+    const m_income = parseFloat(document.getElementById('m_income').value) || 0;
+    const m_expense = parseFloat(document.getElementById('m_expense').value) || 0;
+    const z_income = parseFloat(document.getElementById('z_income').value) || 0;
+    const z_expense = parseFloat(document.getElementById('z_expense').value) || 0;
+    const r_m_num = parseFloat(document.getElementById('ratio_m_num').value) || 1;
+    const r_m_den = parseFloat(document.getElementById('ratio_m_den').value) || 3;
+    const r_z_num = parseFloat(document.getElementById('ratio_z_num').value) || 2;
+    const r_z_den = parseFloat(document.getElementById('ratio_z_den').value) || 3;
+
+    const backup = {
+      version: '2.4',
+      date: new Date().toISOString(),
+      m_income, m_expense, z_income, z_expense,
+      r_m_num, r_m_den, r_z_num, r_z_den,
+      employees
+    };
+
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const today = new Date().toISOString().split('T')[0];
+    a.href = url;
+    a.download = `Partner_Accounts_Backup_${today}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  // Import / Restore Data State
+  function importDataBackup(event) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const data = JSON.parse(e.target.result);
+        if (data.employees && Array.isArray(data.employees)) {
+          document.getElementById('m_income').value = data.m_income || 0;
+          document.getElementById('m_expense').value = data.m_expense || 0;
+          document.getElementById('z_income').value = data.z_income || 0;
+          document.getElementById('z_expense').value = data.z_expense || 0;
+          if (data.r_m_num) document.getElementById('ratio_m_num').value = data.r_m_num;
+          if (data.r_m_den) document.getElementById('ratio_m_den').value = data.r_m_den;
+          if (data.r_z_num) document.getElementById('ratio_z_num').value = data.r_z_num;
+          if (data.r_z_den) document.getElementById('ratio_z_den').value = data.r_z_den;
+
+          employees = data.employees;
+          renderEmployees();
+          calculate();
+          alert('✅ بیک اپ کامیابی سے لوڈ ہو گیا ہے!');
+        } else {
+          alert('فائل کا فارمیٹ درست نہیں ہے۔');
+        }
+      } catch (err) {
+        alert('بیک اپ فائل پڑھنے میں خرابی: ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
   }
 
   window.addEventListener('DOMContentLoaded', () => {
