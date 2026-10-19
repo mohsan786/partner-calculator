@@ -716,9 +716,9 @@
 <script>
   // Initial default employees
   let employees = [
-    { id: 'emp_1', name: 'ایاز (Ayaz)', adv_mohsan: 4000, adv_muzmal: 10000, direct_income: 1500, purchases: 13770, salary: 0, salary_payer: 'none' },
-    { id: 'emp_2', name: 'اشرف (Ashraf)', adv_mohsan: 0, adv_muzmal: 0, direct_income: 0, purchases: 0, salary: 0, salary_payer: 'none' },
-    { id: 'emp_3', name: 'جاوید (Javed)', adv_mohsan: 0, adv_muzmal: 0, direct_income: 0, purchases: 0, salary: 0, salary_payer: 'none' }
+    { id: 'emp_1', name: 'ایاز (Ayaz)', adv_mohsan: 4000, adv_muzmal: 10000, direct_income: 1500, adv_from_emp: 0, adv_to_emp: 0, purchases: 13770, salary: 0, salary_payer: 'none' },
+    { id: 'emp_2', name: 'اشرف (Ashraf)', adv_mohsan: 0, adv_muzmal: 0, direct_income: 0, adv_from_emp: 0, adv_to_emp: 0, purchases: 0, salary: 0, salary_payer: 'none' },
+    { id: 'emp_3', name: 'جاوید (Javed)', adv_mohsan: 0, adv_muzmal: 0, direct_income: 0, adv_from_emp: 0, adv_to_emp: 0, purchases: 0, salary: 0, salary_payer: 'none' }
   ];
 
   function formatPKR(val) {
@@ -740,6 +740,8 @@
       adv_mohsan: 0,
       adv_muzmal: 0,
       direct_income: 0,
+      adv_from_emp: 0,
+      adv_to_emp: 0,
       purchases: 0,
       salary: 0,
       salary_payer: 'none'
@@ -791,6 +793,21 @@
           </div>
         </div>
 
+        <!-- Inter-Employee Advance Transfer (New) -->
+        <div style="background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255, 255, 255, 0.06); padding: 10px; border-radius: 10px; margin-bottom: 12px;">
+          <div style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 6px;">🤝 ایمپلائی آپس کا ایڈوانس (Employee to Employee):</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" style="font-size: 11.5px; color: #38bdf8;">+ دوسرے ایمپلائی سے ملا</label>
+              <input type="number" id="inp_${emp.id}_adv_from_emp" class="form-input" placeholder="0" value="${emp.adv_from_emp > 0 ? emp.adv_from_emp : ''}" style="border-color: rgba(56, 189, 248, 0.3);" oninput="calculate()">
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" style="font-size: 11.5px; color: #f59e0b;">- دوسرے ایمپلائی کو دیا</label>
+              <input type="number" id="inp_${emp.id}_adv_to_emp" class="form-input" placeholder="0" value="${emp.adv_to_emp > 0 ? emp.adv_to_emp : ''}" style="border-color: rgba(245, 158, 11, 0.3);" oninput="calculate()">
+            </div>
+          </div>
+        </div>
+
         <!-- Advance Status Badge -->
         <div style="background: #f1f5f9; border: 1px solid #e2e8f0; padding: 10px 12px; border-radius: 8px; margin-bottom: 12px; font-size: 12.5px; display: flex; justify-content: space-between; align-items: center;">
           <span style="font-weight: 600; color: #475569;">💼 ایڈوانس سے بچا کیش:</span>
@@ -839,9 +856,9 @@
     document.getElementById('z_expense').value = 32327;
 
     employees = [
-      { id: 'emp_1', name: 'ایاز (Ayaz)', adv_mohsan: 4000, adv_muzmal: 10000, direct_income: 1500, purchases: 13770, salary: 0, salary_payer: 'none' },
-      { id: 'emp_2', name: 'اشرف (Ashraf)', adv_mohsan: 0, adv_muzmal: 0, direct_income: 0, purchases: 0, salary: 0, salary_payer: 'none' },
-      { id: 'emp_3', name: 'جاوید (Javed)', adv_mohsan: 0, adv_muzmal: 0, direct_income: 0, purchases: 0, salary: 0, salary_payer: 'none' }
+      { id: 'emp_1', name: 'ایاز (Ayaz)', adv_mohsan: 4000, adv_muzmal: 10000, direct_income: 1500, adv_from_emp: 0, adv_to_emp: 0, purchases: 13770, salary: 0, salary_payer: 'none' },
+      { id: 'emp_2', name: 'اشرف (Ashraf)', adv_mohsan: 0, adv_muzmal: 0, direct_income: 0, adv_from_emp: 0, adv_to_emp: 0, purchases: 0, salary: 0, salary_payer: 'none' },
+      { id: 'emp_3', name: 'جاوید (Javed)', adv_mohsan: 0, adv_muzmal: 0, direct_income: 0, adv_from_emp: 0, adv_to_emp: 0, purchases: 0, salary: 0, salary_payer: 'none' }
     ];
 
     renderEmployees();
@@ -858,6 +875,8 @@
       e.adv_mohsan = 0;
       e.adv_muzmal = 0;
       e.direct_income = 0;
+      e.adv_from_emp = 0;
+      e.adv_to_emp = 0;
       e.purchases = 0;
       e.salary = 0;
       e.salary_payer = 'none';
@@ -891,6 +910,8 @@
     employees.forEach(e => {
       const elM = document.getElementById(`inp_${e.id}_adv_m`);
       const elZ = document.getElementById(`inp_${e.id}_adv_z`);
+      const elFromEmp = document.getElementById(`inp_${e.id}_adv_from_emp`);
+      const elToEmp = document.getElementById(`inp_${e.id}_adv_to_emp`);
       const elPur = document.getElementById(`inp_${e.id}_pur`);
       const elInc = document.getElementById(`inp_${e.id}_inc`);
       const elSal = document.getElementById(`inp_${e.id}_sal`);
@@ -898,6 +919,8 @@
 
       const advM = elM ? (parseFloat(elM.value) || 0) : (e.adv_mohsan || 0);
       const advZ = elZ ? (parseFloat(elZ.value) || 0) : (e.adv_muzmal || 0);
+      const advFromEmp = elFromEmp ? (parseFloat(elFromEmp.value) || 0) : (e.adv_from_emp || 0);
+      const advToEmp = elToEmp ? (parseFloat(elToEmp.value) || 0) : (e.adv_to_emp || 0);
       const pur = elPur ? (parseFloat(elPur.value) || 0) : (e.purchases || 0);
       const inc = elInc ? (parseFloat(elInc.value) || 0) : (e.direct_income || 0);
       const sal = elSal ? (parseFloat(elSal.value) || 0) : (e.salary || 0);
@@ -906,13 +929,17 @@
       // Update in-memory state
       e.adv_mohsan = advM;
       e.adv_muzmal = advZ;
+      e.adv_from_emp = advFromEmp;
+      e.adv_to_emp = advToEmp;
       e.purchases = pur;
       e.direct_income = inc;
       e.salary = sal;
       e.salary_payer = payer;
 
-      const cashReceived = advM + advZ + inc;
-      const rem = cashReceived - pur;
+      // Inflow = Mohsan Adv + Muzmal Adv + Direct Income + From Other Employee
+      // Outflow = Purchases + Advance Given To Other Employee
+      const cashReceived = advM + advZ + inc + advFromEmp;
+      const rem = cashReceived - pur - advToEmp;
 
       // Update remaining cash badge directly without re-rendering
       const badgeRem = document.getElementById(`badge_${e.id}_rem`);
@@ -1087,10 +1114,17 @@
 
     bd += `4. ایمپلائز کا تفصیلی کھاتہ (EMPLOYEES DETAILS):\n`;
     employees.forEach(e => {
-      const advTotal = (e.adv_mohsan || 0) + (e.adv_muzmal || 0) + (e.direct_income || 0);
-      const rem = advTotal - (e.purchases || 0);
+      const advTotal = (e.adv_mohsan || 0) + (e.adv_muzmal || 0) + (e.direct_income || 0) + (e.adv_from_emp || 0);
+      const rem = advTotal - (e.purchases || 0) - (e.adv_to_emp || 0);
       bd += `   • ${e.name}:\n`;
-      bd += `     ایڈوانس ملا: ${formatPKR(advTotal)} | خرچہ کیا: ${formatPKR(e.purchases || 0)} | بچا کیش: ${formatPKR(rem)}\n`;
+      let advStr = `     کل کیش ملا: ${formatPKR(advTotal)} (محسن: ${formatPKR(e.adv_mohsan || 0)}, مزمل: ${formatPKR(e.adv_muzmal || 0)}`;
+      if (e.adv_from_emp > 0) advStr += `, دوسرے ایمپلائی سے ملا: +${formatPKR(e.adv_from_emp)}`;
+      advStr += `)`;
+      bd += `${advStr}\n`;
+      bd += `     خریداریاں / خرچے: -${formatPKR(e.purchases || 0)}`;
+      if (e.adv_to_emp > 0) bd += ` | دوسرے ایمپلائی کو ایڈوانس دیا: -${formatPKR(e.adv_to_emp)}`;
+      bd += ` | بچا کیش: ${formatPKR(rem)}\n`;
+
       if ((e.salary || 0) > 0) {
         const ded = Math.min(e.salary, Math.max(0, rem));
         bd += `     تنخواہ: ${formatPKR(e.salary)} | کٹوتی ہوئی: -${formatPKR(ded)} | ادا کرنے والی نیٹ تنخواہ: ${formatPKR(e.salary - ded)}\n`;
