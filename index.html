@@ -59,7 +59,7 @@
     }
 
     .container {
-      max-width: 1080px;
+      max-width: 1240px;
       margin: 0 auto;
     }
 
@@ -198,8 +198,13 @@
 
     /* Classic Form Controls */
     .form-input, select.form-input {
-      padding: 8px 12px;
-      font-size: 14px;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
+      display: block;
+      padding: 8px 10px;
+      font-size: 13.5px;
       font-weight: 600;
       color: var(--text-main);
       background: #ffffff;
@@ -209,6 +214,17 @@
       transition: border-color 0.15s, box-shadow 0.15s;
     }
 
+    select.form-input {
+      text-overflow: ellipsis;
+    }
+
+    .card-grid-2 {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 8px;
+      width: 100%;
+    }
+
     .form-input:focus, select.form-input:focus {
       border-color: var(--primary);
       box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.12);
@@ -216,6 +232,8 @@
 
     .form-group {
       margin-bottom: 12px;
+      min-width: 0;
+      width: 100%;
     }
 
     .form-label {
@@ -255,7 +273,7 @@
     /* Grid Layouts */
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
       gap: 18px;
       margin-bottom: 26px;
     }
@@ -265,9 +283,11 @@
       background: var(--card-bg);
       border: 1px solid var(--border-color);
       border-radius: 10px;
-      padding: 18px 20px;
+      padding: 16px 18px;
       box-shadow: var(--shadow-sm);
       position: relative;
+      overflow: hidden;
+      min-width: 0;
     }
 
     .card-partner {
@@ -743,7 +763,7 @@
             </div>
           </div>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+          <div class="card-grid-2" style="margin-bottom: 12px;">
             <div class="form-group" style="margin-bottom: 0;">
               <label class="form-label">حسابی حصہ (Ratio / Share):</label>
               <input type="number" id="inp_p_${p.id}_share" class="form-input" value="${p.share}" step="0.5" min="0.1" oninput="calculate()">
@@ -839,8 +859,8 @@
       const advInputsHtml = partners.map(p => {
         const val = (emp.advances && emp.advances[p.id]) || 0;
         return `
-          <div class="form-group" style="margin-bottom: 8px;">
-            <label class="form-label" style="font-size: 12px;">${p.name} نے ایڈوانس دیا:</label>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" style="font-size: 11px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${p.name} نے ایڈوانس دیا">${p.name}:</label>
             <input type="number" id="inp_${emp.id}_adv_${p.id}" class="form-input" placeholder="0" value="${val > 0 ? val : ''}" oninput="calculate()">
           </div>
         `;
@@ -865,7 +885,7 @@
             <div style="font-size: 11.5px; font-weight: 700; color: var(--primary); margin-bottom: 6px;">
               💼 پارٹنرز کی طرف سے دیا گیا ایڈوانس:
             </div>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(105px, 1fr)); gap: 8px;">
               ${advInputsHtml}
             </div>
           </div>
@@ -873,9 +893,9 @@
           <!-- Employee to Employee Advances -->
           <div style="background: var(--gold-light); border: 1px solid #fde047; padding: 10px 12px; border-radius: 8px; margin-bottom: 12px;">
             <div style="font-size: 11.5px; font-weight: 700; color: var(--gold); margin-bottom: 6px;">
-              🤝 ایمپلائی آپس کا ایڈوانس (Inter-Employee):
+              🤝 ایمپلائی آپس کا کیش (Inter-Employee):
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <div class="card-grid-2">
               <div class="form-group" style="margin-bottom: 0;">
                 <label class="form-label" style="font-size: 11px; color: #0284c7;">+ دوسرے ایمپلائی سے ملا:</label>
                 <input type="number" id="inp_${emp.id}_adv_from_emp" class="form-input" placeholder="0" value="${emp.adv_from_emp > 0 ? emp.adv_from_emp : ''}" oninput="calculate()">
@@ -888,13 +908,13 @@
           </div>
 
           <!-- Purchases & Direct Income -->
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
+          <div class="card-grid-2" style="margin-bottom: 12px;">
             <div class="form-group" style="margin-bottom: 0;">
-              <label class="form-label">خریداری / خرچہ (Purchases):</label>
+              <label class="form-label" style="margin-bottom: 2px;">خریداری / سامان <span class="form-sub">(Purchases)</span></label>
               <input type="number" id="inp_${emp.id}_pur" class="form-input" placeholder="0" value="${emp.purchases > 0 ? emp.purchases : ''}" oninput="calculate()">
             </div>
             <div class="form-group" style="margin-bottom: 0;">
-              <label class="form-label">براہ راست آمدنی (Direct Income):</label>
+              <label class="form-label" style="margin-bottom: 2px;">براہ راست آمدنی <span class="form-sub">(Direct Income)</span></label>
               <input type="number" id="inp_${emp.id}_inc" class="form-input" placeholder="0" value="${emp.direct_income > 0 ? emp.direct_income : ''}" oninput="calculate()">
             </div>
           </div>
