@@ -716,9 +716,9 @@
 <script>
   // Initial default employees
   let employees = [
-    { id: 'emp_1', name: 'ایاز (Ayaz)', adv_mohsan: 4000, adv_muzmal: 10000, direct_income: 1500, adv_from_emp: 0, adv_to_emp: 0, purchases: 13770, salary: 0, salary_payer: 'none' },
-    { id: 'emp_2', name: 'اشرف (Ashraf)', adv_mohsan: 0, adv_muzmal: 0, direct_income: 0, adv_from_emp: 0, adv_to_emp: 0, purchases: 0, salary: 0, salary_payer: 'none' },
-    { id: 'emp_3', name: 'جاوید (Javed)', adv_mohsan: 0, adv_muzmal: 0, direct_income: 0, adv_from_emp: 0, adv_to_emp: 0, purchases: 0, salary: 0, salary_payer: 'none' }
+    { id: 'emp_1', name: 'ایاز (Ayaz)', adv_mohsan: 4000, adv_muzmal: 10000, direct_income: 1500, adv_from_emp: 0, adv_to_emp: 0, purchases: 13770, salary: 0, salary_payer: 'none', deduction_mode: 'auto', custom_deduction: 0 },
+    { id: 'emp_2', name: 'اشرف (Ashraf)', adv_mohsan: 0, adv_muzmal: 0, direct_income: 0, adv_from_emp: 0, adv_to_emp: 0, purchases: 0, salary: 0, salary_payer: 'none', deduction_mode: 'auto', custom_deduction: 0 },
+    { id: 'emp_3', name: 'جاوید (Javed)', adv_mohsan: 0, adv_muzmal: 0, direct_income: 0, adv_from_emp: 0, adv_to_emp: 0, purchases: 0, salary: 0, salary_payer: 'none', deduction_mode: 'auto', custom_deduction: 0 }
   ];
 
   function formatPKR(val) {
@@ -744,7 +744,9 @@
       adv_to_emp: 0,
       purchases: 0,
       salary: 0,
-      salary_payer: 'none'
+      salary_payer: 'none',
+      deduction_mode: 'auto',
+      custom_deduction: 0
     });
     renderEmployees();
     calculate();
@@ -825,6 +827,22 @@
           </div>
 
           <div id="box_${emp.id}_sal_details">
+            <!-- Deduction Policy Options -->
+            <div class="form-group" style="background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255, 255, 255, 0.08); padding: 10px; border-radius: 10px; margin-bottom: 10px;">
+              <label class="form-label" style="font-size: 12px; color: #93c5fd; margin-bottom: 5px;">
+                ✂️ ایڈوانس کٹوتی کی پالیسی (Deduction Option):
+              </label>
+              <select id="inp_${emp.id}_ded_mode" class="form-input" style="font-size: 13px; padding: 7px 10px;" onchange="onDeductionModeChange('${emp.id}')">
+                <option value="auto" ${(emp.deduction_mode || 'auto') === 'auto' ? 'selected' : ''}>✅ خودکار کٹوتی (بچے ایڈوانس سے خود کٹے)</option>
+                <option value="none" ${emp.deduction_mode === 'none' ? 'selected' : ''}>⏳ اگلی تنخواہ میں کٹوتی (اس مہینے کچھ نہ کاٹیں)</option>
+                <option value="custom" ${emp.deduction_mode === 'custom' ? 'selected' : ''}>✏️ مرضی کی جزوی کٹوتی (Custom Amount)</option>
+              </select>
+              <div id="box_${emp.id}_custom_ded" style="display: ${emp.deduction_mode === 'custom' ? 'block' : 'none'}; margin-top: 8px;">
+                <label class="form-label" style="font-size: 11.5px; color: #cbd5e1;">اس مہینے کتنی کٹوتی کرنی ہے؟</label>
+                <input type="number" id="inp_${emp.id}_custom_ded" class="form-input" placeholder="مثلاً: 1000" value="${emp.custom_deduction > 0 ? emp.custom_deduction : ''}" oninput="calculate()">
+              </div>
+            </div>
+
             <div style="background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); border: 1.5px solid #a7f3d0; padding: 10px 12px; border-radius: 10px; font-size: 12.5px; margin-bottom: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
               <div style="color: #1e293b; font-weight: 600;">تنخواہ سے کٹوتی: <strong id="badge_${emp.id}_ded" style="color: #b91c1c;">Rs. 0.00</strong></div>
               <div style="font-size: 14px; font-weight: 800; color: #047857; margin-top: 3px; display: flex; justify-content: space-between; align-items: center;">
@@ -849,6 +867,15 @@
     `).join('');
   }
 
+  function onDeductionModeChange(empId) {
+    const sel = document.getElementById(`inp_${empId}_ded_mode`);
+    const customBox = document.getElementById(`box_${empId}_custom_ded`);
+    if (sel && customBox) {
+      customBox.style.display = sel.value === 'custom' ? 'block' : 'none';
+    }
+    calculate();
+  }
+
   function fillUserValues() {
     document.getElementById('m_income').value = 3500;
     document.getElementById('m_expense').value = 5000;
@@ -856,9 +883,9 @@
     document.getElementById('z_expense').value = 32327;
 
     employees = [
-      { id: 'emp_1', name: 'ایاز (Ayaz)', adv_mohsan: 4000, adv_muzmal: 10000, direct_income: 1500, adv_from_emp: 0, adv_to_emp: 0, purchases: 13770, salary: 0, salary_payer: 'none' },
-      { id: 'emp_2', name: 'اشرف (Ashraf)', adv_mohsan: 0, adv_muzmal: 0, direct_income: 0, adv_from_emp: 0, adv_to_emp: 0, purchases: 0, salary: 0, salary_payer: 'none' },
-      { id: 'emp_3', name: 'جاوید (Javed)', adv_mohsan: 0, adv_muzmal: 0, direct_income: 0, adv_from_emp: 0, adv_to_emp: 0, purchases: 0, salary: 0, salary_payer: 'none' }
+      { id: 'emp_1', name: 'ایاز (Ayaz)', adv_mohsan: 4000, adv_muzmal: 10000, direct_income: 1500, adv_from_emp: 0, adv_to_emp: 0, purchases: 13770, salary: 0, salary_payer: 'none', deduction_mode: 'auto', custom_deduction: 0 },
+      { id: 'emp_2', name: 'اشرف (Ashraf)', adv_mohsan: 0, adv_muzmal: 0, direct_income: 0, adv_from_emp: 0, adv_to_emp: 0, purchases: 0, salary: 0, salary_payer: 'none', deduction_mode: 'auto', custom_deduction: 0 },
+      { id: 'emp_3', name: 'جاوید (Javed)', adv_mohsan: 0, adv_muzmal: 0, direct_income: 0, adv_from_emp: 0, adv_to_emp: 0, purchases: 0, salary: 0, salary_payer: 'none', deduction_mode: 'auto', custom_deduction: 0 }
     ];
 
     renderEmployees();
@@ -880,6 +907,8 @@
       e.purchases = 0;
       e.salary = 0;
       e.salary_payer = 'none';
+      e.deduction_mode = 'auto';
+      e.custom_deduction = 0;
     });
 
     renderEmployees();
@@ -916,6 +945,8 @@
       const elInc = document.getElementById(`inp_${e.id}_inc`);
       const elSal = document.getElementById(`inp_${e.id}_sal`);
       const elPayer = document.getElementById(`inp_${e.id}_payer`);
+      const elDedMode = document.getElementById(`inp_${e.id}_ded_mode`);
+      const elCustomDed = document.getElementById(`inp_${e.id}_custom_ded`);
 
       const advM = elM ? (parseFloat(elM.value) || 0) : (e.adv_mohsan || 0);
       const advZ = elZ ? (parseFloat(elZ.value) || 0) : (e.adv_muzmal || 0);
@@ -925,6 +956,8 @@
       const inc = elInc ? (parseFloat(elInc.value) || 0) : (e.direct_income || 0);
       const sal = elSal ? (parseFloat(elSal.value) || 0) : (e.salary || 0);
       const payer = elPayer ? elPayer.value : (e.salary_payer || 'none');
+      const dedMode = elDedMode ? elDedMode.value : (e.deduction_mode || 'auto');
+      const customDed = elCustomDed ? (parseFloat(elCustomDed.value) || 0) : (e.custom_deduction || 0);
 
       // Update in-memory state
       e.adv_mohsan = advM;
@@ -935,6 +968,8 @@
       e.direct_income = inc;
       e.salary = sal;
       e.salary_payer = payer;
+      e.deduction_mode = dedMode;
+      e.custom_deduction = customDed;
 
       // Inflow = Mohsan Adv + Muzmal Adv + Direct Income + From Other Employee
       // Outflow = Purchases + Advance Given To Other Employee
@@ -959,7 +994,13 @@
 
       if (sal > 0) {
         if (rem > 0) {
-          deduction = Math.min(sal, rem);
+          if (dedMode === 'auto') {
+            deduction = Math.min(sal, rem);
+          } else if (dedMode === 'none') {
+            deduction = 0; // Defer deduction to next month!
+          } else if (dedMode === 'custom') {
+            deduction = Math.min(Math.min(sal, rem), Math.max(0, customDed));
+          }
           netSal = sal - deduction;
           remainingCashAfterSalary = rem - deduction;
         } else {
@@ -1091,10 +1132,19 @@
       let totalDeductions = 0;
       let totalNetSalaries = 0;
       employees.forEach(e => {
-        const advTotal = (e.adv_mohsan || 0) + (e.adv_muzmal || 0) + (e.direct_income || 0);
-        const rem = advTotal - (e.purchases || 0);
+        const advTotal = (e.adv_mohsan || 0) + (e.adv_muzmal || 0) + (e.direct_income || 0) + (e.adv_from_emp || 0);
+        const rem = advTotal - (e.purchases || 0) - (e.adv_to_emp || 0);
         if ((e.salary || 0) > 0) {
-          const ded = rem > 0 ? Math.min(e.salary, rem) : 0;
+          let ded = 0;
+          if (rem > 0) {
+            if ((e.deduction_mode || 'auto') === 'auto') {
+              ded = Math.min(e.salary, rem);
+            } else if (e.deduction_mode === 'none') {
+              ded = 0;
+            } else if (e.deduction_mode === 'custom') {
+              ded = Math.min(Math.min(e.salary, rem), Math.max(0, e.custom_deduction || 0));
+            }
+          }
           totalDeductions += ded;
           totalNetSalaries += (e.salary - ded);
         }
@@ -1126,8 +1176,22 @@
       bd += ` | بچا کیش: ${formatPKR(rem)}\n`;
 
       if ((e.salary || 0) > 0) {
-        const ded = Math.min(e.salary, Math.max(0, rem));
-        bd += `     تنخواہ: ${formatPKR(e.salary)} | کٹوتی ہوئی: -${formatPKR(ded)} | ادا کرنے والی نیٹ تنخواہ: ${formatPKR(e.salary - ded)}\n`;
+        let ded = 0;
+        if (rem > 0) {
+          if ((e.deduction_mode || 'auto') === 'auto') {
+            ded = Math.min(e.salary, rem);
+          } else if (e.deduction_mode === 'none') {
+            ded = 0;
+          } else if (e.deduction_mode === 'custom') {
+            ded = Math.min(Math.min(e.salary, rem), Math.max(0, e.custom_deduction || 0));
+          }
+        }
+        let policyNote = '';
+        if (e.deduction_mode === 'none') policyNote = ' [اگلی تنخواہ میں کٹوتی مؤخر کی گئی]';
+        else if (e.deduction_mode === 'custom') policyNote = ' [جزوی کٹوتی]';
+
+        bd += `     تنخواہ: ${formatPKR(e.salary)} | کٹوتی ہوئی: -${formatPKR(ded)}${policyNote} | ادا کرنے والی نیٹ تنخواہ: ${formatPKR(e.salary - ded)}\n`;
+        bd += `     تنخواہ کے بعد ایمپلائی کے پاس بقایا کیش (کیری فارورڈ): = ${formatPKR(rem - ded)}\n`;
       }
     });
     bd += `   کل ایمپلائز کے پاس بقایا کیش:          = ${formatPKR(totalRemainingEmpCash)}\n\n`;
