@@ -12,34 +12,69 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;600;700&family=Noto+Sans+Arabic:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #1e3a8a;       /* Deep Navy */
-      --primary-light: #eff6ff;
-      --primary-border: #bfdbfe;
-      
-      --accent: #0f766e;        /* Classic Teal */
+      --primary: #4f46e5;
+      --primary-2: #7c3aed;
+      --primary-light: #eef2ff;
+      --primary-border: #c7d2fe;
+
+      --accent: #0d9488;
       --accent-light: #f0fdfa;
-      
-      --gold: #b45309;          /* Classic Amber / Gold */
-      --gold-light: #fefce8;
-      
-      --success: #15803d;
-      --success-light: #f0fdf4;
-      --danger: #b91c1c;
-      --danger-light: #fef2f2;
-      
-      --border-color: #cbd5e1;
-      --border-dark: #94a3b8;
-      
+
+      --gold: #d97706;
+      --gold-light: #fffbeb;
+      --gold-border: #fde68a;
+
+      --success: #059669;
+      --success-light: #ecfdf5;
+      --success-border: #a7f3d0;
+      --danger: #e11d48;
+      --danger-light: #fff1f2;
+
+      --border-color: #e2e8f0;
+      --border-dark: #cbd5e1;
+
       --text-main: #0f172a;
       --text-muted: #475569;
       --text-light: #64748b;
-      
-      --bg: #f8fafc;
+
+      --bg: #f1f5f9;
+      --soft: #f8fafc;
       --card-bg: #ffffff;
-      
-      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
-      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
-      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08);
+      --input-bg: #ffffff;
+
+      --shadow-sm: 0 1px 2px rgba(15,23,42,.05), 0 1px 3px rgba(15,23,42,.06);
+      --shadow-md: 0 10px 30px -10px rgba(15,23,42,.18);
+      --radius: 16px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --primary: #818cf8;
+        --primary-2: #a78bfa;
+        --primary-light: #1e2447;
+        --primary-border: #3a4380;
+        --accent: #2dd4bf;
+        --accent-light: #0f2a28;
+        --gold: #fbbf24;
+        --gold-light: #2c2410;
+        --gold-border: #5b4513;
+        --success: #34d399;
+        --success-light: #0f2a24;
+        --success-border: #14503f;
+        --danger: #fb7185;
+        --danger-light: #34131c;
+        --border-color: #2a3350;
+        --border-dark: #3a4570;
+        --text-main: #e6eaf5;
+        --text-muted: #a3aed0;
+        --text-light: #8792b5;
+        --bg: #0b1020;
+        --soft: #1b2340;
+        --card-bg: #151b2e;
+        --input-bg: #0f1526;
+        --shadow-sm: 0 1px 2px rgba(0,0,0,.4);
+        --shadow-md: 0 10px 30px -10px rgba(0,0,0,.6);
+      }
     }
 
     * {
@@ -50,406 +85,520 @@
     }
 
     body {
-      background-color: var(--bg);
+      background:
+        radial-gradient(900px 320px at 50% -120px, color-mix(in srgb, var(--primary) 22%, transparent), transparent),
+        var(--bg);
+      background-repeat: no-repeat;
       color: var(--text-main);
-      line-height: 1.6;
-      padding: 24px 16px 60px;
+      line-height: 1.7;
+      padding: 24px 16px 70px;
       min-height: 100vh;
       -webkit-font-smoothing: antialiased;
     }
 
-    .container {
-      max-width: 1240px;
-      margin: 0 auto;
-    }
+    .container { max-width: 1180px; margin: 0 auto; }
 
-    /* Classic Ledger Header */
+    /* ---------- Header ---------- */
     .classic-header {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-top: 5px solid var(--primary);
-      border-radius: 12px;
-      padding: 24px 28px;
-      margin-bottom: 24px;
-      box-shadow: var(--shadow-sm);
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, #4338ca 0%, #6d28d9 60%, #7c3aed 100%);
+      color: #fff;
+      border-radius: 22px;
+      padding: 28px 30px;
+      margin-bottom: 20px;
+      box-shadow: 0 18px 40px -16px rgba(79,70,229,.55);
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
       gap: 16px;
     }
-
+    .classic-header::after {
+      content: "";
+      position: absolute;
+      inset-inline-start: -60px;
+      top: -80px;
+      width: 240px; height: 240px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.08);
+    }
+    .header-titles { position: relative; z-index: 1; }
     .header-titles h1 {
-      font-size: 24px;
+      font-size: 26px;
       font-weight: 800;
-      color: var(--primary);
       margin-bottom: 4px;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
     }
-
-    .header-titles p {
-      font-size: 13.5px;
-      color: var(--text-muted);
+    .logo {
+      display: inline-grid;
+      place-items: center;
+      width: 46px; height: 46px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.18);
+      border: 1px solid rgba(255,255,255,.3);
+      font-size: 24px;
     }
-
+    .header-titles p { font-size: 13px; color: rgba(255,255,255,.8); direction: ltr; text-align: right; }
     .header-badge {
+      position: relative; z-index: 1;
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 6px 14px;
-      background: var(--primary-light);
-      border: 1px solid var(--primary-border);
-      color: var(--primary);
-      border-radius: 6px;
+      padding: 8px 16px;
+      background: rgba(255,255,255,.16);
+      border: 1px solid rgba(255,255,255,.35);
+      color: #fff;
+      border-radius: 999px;
       font-size: 13px;
       font-weight: 700;
+      backdrop-filter: blur(6px);
     }
 
-    /* Period & Date Bar */
+    /* ---------- Control bar ---------- */
     .control-bar {
       background: var(--card-bg);
       border: 1px solid var(--border-color);
-      border-radius: 10px;
-      padding: 16px 20px;
-      margin-bottom: 24px;
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      margin-bottom: 28px;
       box-shadow: var(--shadow-sm);
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: flex-end;
       flex-wrap: wrap;
-      gap: 14px;
+      gap: 16px;
     }
+    .control-group { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
+    .field-item { display: flex; flex-direction: column; gap: 5px; }
+    .field-item label { font-size: 12px; font-weight: 700; color: var(--text-muted); }
+    #calc_period { min-width: 250px !important; }
 
-    .control-group {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .field-item {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .field-item label {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--text-muted);
-    }
-
-    /* Classic Buttons */
+    /* ---------- Buttons ---------- */
     .btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 6px;
-      padding: 8px 16px;
+      padding: 9px 18px;
       font-size: 13px;
       font-weight: 700;
-      border-radius: 6px;
+      border-radius: 11px;
       border: 1px solid transparent;
       cursor: pointer;
-      transition: all 0.15s ease-in-out;
+      transition: transform .15s, box-shadow .15s, background .15s, opacity .15s;
     }
-
-    .btn:hover {
-      opacity: 0.92;
-      transform: translateY(-1px);
-    }
-    .btn:active {
-      transform: translateY(0);
-    }
-
+    .btn:hover { transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+    .btn:focus-visible { outline: 3px solid color-mix(in srgb, var(--primary) 40%, transparent); outline-offset: 2px; }
     .btn-primary {
-      background: var(--primary);
-      color: #ffffff;
-      border-color: #172554;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: #fff;
+      box-shadow: 0 6px 16px -6px color-mix(in srgb, var(--primary) 70%, transparent);
     }
-
     .btn-accent {
-      background: var(--accent);
-      color: #ffffff;
-      border-color: #115e59;
+      background: linear-gradient(135deg, #0d9488, #0891b2);
+      color: #fff;
+      box-shadow: 0 6px 16px -6px rgba(13,148,136,.6);
     }
-
     .btn-secondary {
-      background: #f1f5f9;
+      background: var(--soft);
       color: var(--text-main);
       border-color: var(--border-color);
     }
-    .btn-secondary:hover {
-      background: #e2e8f0;
-    }
-
+    .btn-secondary:hover { border-color: var(--primary); color: var(--primary); }
     .btn-danger {
-      background: #fee2e2;
+      background: var(--danger-light);
       color: var(--danger);
-      border-color: #fca5a5;
+      border-color: color-mix(in srgb, var(--danger) 35%, transparent);
       font-size: 12px;
-      padding: 4px 10px;
+      padding: 5px 12px;
+      border-radius: 9px;
     }
-    .btn-danger:hover {
-      background: #fecaca;
-    }
+    .btn-danger:hover { background: color-mix(in srgb, var(--danger) 18%, var(--danger-light)); }
 
-    /* Classic Form Controls */
+    /* ---------- Form controls ---------- */
     .form-input, select.form-input {
       width: 100%;
       max-width: 100%;
       min-width: 0;
-      box-sizing: border-box;
       display: block;
-      padding: 8px 10px;
-      font-size: 13.5px;
+      padding: 10px 12px;
+      font-size: 14px;
       font-weight: 600;
       color: var(--text-main);
-      background: #ffffff;
+      background: var(--input-bg);
       border: 1.5px solid var(--border-color);
-      border-radius: 6px;
+      border-radius: 11px;
       outline: none;
-      transition: border-color 0.15s, box-shadow 0.15s;
+      transition: border-color .15s, box-shadow .15s;
     }
-
-    select.form-input {
-      text-overflow: ellipsis;
-    }
-
-    .card-grid-2 {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      gap: 8px;
-      width: 100%;
-    }
-
+    .form-input::placeholder { color: var(--text-light); font-weight: 400; }
+    .form-input:hover { border-color: var(--border-dark); }
     .form-input:focus, select.form-input:focus {
       border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.12);
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 18%, transparent);
     }
+    select.form-input { text-overflow: ellipsis; }
+    .card-grid-2 { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 10px; width: 100%; }
+    .form-group { margin-bottom: 14px; min-width: 0; width: 100%; }
+    .form-label { display: block; font-size: 12.5px; font-weight: 700; color: var(--text-main); margin-bottom: 5px; }
+    .form-sub { font-size: 11px; color: var(--text-light); font-weight: 400; display: block; }
 
-    .form-group {
-      margin-bottom: 12px;
-      min-width: 0;
-      width: 100%;
-    }
-
-    .form-label {
-      display: block;
-      font-size: 12.5px;
-      font-weight: 700;
-      color: var(--text-main);
-      margin-bottom: 4px;
-    }
-
-    .form-sub {
-      font-size: 11px;
-      color: var(--text-light);
-      font-weight: 400;
-      display: block;
-    }
-
-    /* Section Headers */
+    /* ---------- Section headers ---------- */
     .section-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding-bottom: 8px;
-      margin-bottom: 16px;
-      border-bottom: 2px solid var(--border-color);
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 6px 0 16px;
     }
-
     .section-header h2 {
-      font-size: 17px;
+      font-size: 18px;
       font-weight: 800;
-      color: var(--primary);
+      color: var(--text-main);
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
+    }
+    .section-header h2::before {
+      content: "";
+      width: 6px; height: 24px;
+      border-radius: 6px;
+      background: linear-gradient(var(--primary), var(--primary-2));
     }
 
-    /* Grid Layouts */
+    /* ---------- Cards ---------- */
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 330px), 1fr));
       gap: 18px;
-      margin-bottom: 26px;
+      margin-bottom: 32px;
     }
-
-    /* Classic Cards */
     .card {
       background: var(--card-bg);
       border: 1px solid var(--border-color);
-      border-radius: 10px;
-      padding: 16px 18px;
+      border-radius: var(--radius);
+      padding: 18px 20px 20px;
       box-shadow: var(--shadow-sm);
       position: relative;
       overflow: hidden;
       min-width: 0;
+      transition: box-shadow .2s, transform .2s;
     }
-
-    .card-partner {
-      border-top: 4px solid var(--primary);
+    .card:hover { box-shadow: var(--shadow-md); }
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--primary-2));
     }
-
-    .card-employee {
-      border-top: 4px solid var(--gold);
-    }
+    .card-employee::before { background: linear-gradient(90deg, #f59e0b, #f97316); }
 
     .card-title {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding-bottom: 10px;
-      margin-bottom: 14px;
-      border-bottom: 1px solid var(--border-color);
+      gap: 10px;
+      padding-bottom: 12px;
+      margin: 4px 0 16px;
+      border-bottom: 1px dashed var(--border-color);
       font-size: 15px;
       font-weight: 800;
       color: var(--text-main);
     }
+    .who { display: inline-flex; align-items: center; gap: 10px; min-width: 0; }
+    .avatar {
+      flex: none;
+      display: inline-grid;
+      place-items: center;
+      width: 36px; height: 36px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: #fff;
+      font-style: normal;
+      font-weight: 800;
+      font-size: 16px;
+    }
+    .avatar.gold { background: linear-gradient(135deg, #f59e0b, #f97316); }
 
-    /* Live Output Results Section */
+    .sub-box {
+      background: var(--soft);
+      border: 1px solid var(--border-color);
+      padding: 12px;
+      border-radius: 12px;
+      margin-bottom: 14px;
+    }
+    .sub-box.gold { background: var(--gold-light); border-color: var(--gold-border); }
+    .sub-title { font-size: 12px; font-weight: 800; color: var(--primary); margin-bottom: 8px; }
+    .sub-title.gold { color: var(--gold); }
+    .sub-box .form-input { padding: 8px 10px; }
+
+    .rem-badge {
+      background: var(--soft);
+      border: 1px solid var(--border-color);
+      padding: 10px 14px;
+      border-radius: 12px;
+      margin-bottom: 14px;
+      font-size: 12.5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .ded-box {
+      background: var(--soft);
+      border: 1px solid var(--border-color);
+      padding: 12px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+    }
+    .net-box {
+      background: var(--success-light);
+      border: 1px solid var(--success-border);
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 12.5px;
+      margin-bottom: 12px;
+    }
+
+    /* ---------- Results ---------- */
     .results-wrapper {
       background: var(--card-bg);
       border: 1px solid var(--border-color);
-      border-radius: 12px;
+      border-radius: 22px;
       padding: 24px;
       box-shadow: var(--shadow-md);
       margin-bottom: 28px;
     }
-
-    /* Final Decision Classic Box */
     .decision-banner {
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-      color: #ffffff;
-      border-radius: 10px;
-      padding: 20px 22px;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 55%, #312e81 100%);
+      color: #fff;
+      border-radius: 18px;
+      padding: 24px 22px 26px;
       margin-bottom: 22px;
       text-align: center;
-      border: 1px solid #334155;
     }
-
+    .decision-banner::after {
+      content: "";
+      position: absolute;
+      inset-inline-end: -70px; bottom: -90px;
+      width: 240px; height: 240px;
+      border-radius: 50%;
+      background: rgba(129,140,248,.14);
+    }
     .decision-badge {
+      position: relative; z-index: 1;
       display: inline-block;
-      font-size: 11.5px;
+      font-size: 12px;
       font-weight: 800;
-      letter-spacing: 1.5px;
-      background: rgba(56, 189, 248, 0.15);
-      color: #38bdf8;
-      border: 1px solid rgba(56, 189, 248, 0.35);
+      letter-spacing: .5px;
+      background: rgba(255,255,255,.1);
+      color: #c7d2fe;
+      border: 1px solid rgba(199,210,254,.35);
       border-radius: 999px;
-      padding: 4px 14px;
-      margin-bottom: 10px;
+      padding: 4px 16px;
+      margin-bottom: 12px;
     }
-
-    .decision-text {
-      font-size: 22px;
-      font-weight: 800;
-      color: #38bdf8;
-      line-height: 1.6;
-      white-space: pre-line;
-    }
-
-    /* Stats Grid */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-      gap: 12px;
-      margin-bottom: 24px;
-    }
-
-    .stat-box {
-      background: var(--bg);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 12px 14px;
-    }
-
-    .stat-label {
-      font-size: 11.5px;
-      font-weight: 700;
-      color: var(--text-light);
-      margin-bottom: 4px;
-    }
-
-    .stat-value {
+    .decision-text { position: relative; z-index: 1; font-size: 16px; font-weight: 700; color: #e0e7ff; line-height: 1.7; white-space: pre-line; }
+    .dec-line {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      max-width: 680px;
+      margin: 8px auto 0;
+      padding: 11px 16px;
+      border-radius: 14px;
       font-size: 19px;
       font-weight: 800;
-      color: var(--text-main);
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.14);
+      color: #e2e8f0;
+      white-space: normal;
     }
+    .dec-line.pay  { background: rgba(251,113,133,.15); border-color: rgba(251,113,133,.4); color: #fecdd3; }
+    .dec-line.get  { background: rgba(52,211,153,.15);  border-color: rgba(52,211,153,.4);  color: #a7f3d0; }
+    .dec-line.info { background: rgba(251,191,36,.12);  border-color: rgba(251,191,36,.35); color: #fde68a; font-size: 16px; }
+    .dec-line.warn { background: rgba(251,146,60,.18);  border-color: rgba(251,146,60,.5);  color: #fed7aa; font-size: 15px; }
+    .dec-line.ok   { background: rgba(52,211,153,.15);  border-color: rgba(52,211,153,.4);  color: #a7f3d0; }
 
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+    .stat-box {
+      background: var(--soft);
+      border: 1px solid var(--border-color);
+      border-inline-start: 5px solid var(--primary);
+      border-radius: 14px;
+      padding: 14px 16px;
+    }
+    .stat-box:nth-child(1) { border-inline-start-color: var(--success); }
+    .stat-box:nth-child(2) { border-inline-start-color: var(--danger); }
+    .stat-box:nth-child(3) { border-inline-start-color: var(--primary); }
+    .stat-box:nth-child(4) { border-inline-start-color: var(--gold); }
+    .stat-label { font-size: 12px; font-weight: 700; color: var(--text-light); margin-bottom: 2px; }
+    .stat-value { font-size: 21px; font-weight: 800; color: var(--text-main); direction: ltr; text-align: right; }
     .val-profit { color: var(--success); }
     .val-loss { color: var(--danger); }
 
-    /* Breakdown Box */
+    .share-chip {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 999px;
+      padding: 7px 16px;
+      font-size: 13px;
+      box-shadow: var(--shadow-sm);
+    }
+
     .breakdown-box {
-      background: #0f172a;
-      color: #f1f5f9;
-      border: 1px solid #334155;
-      border-radius: 8px;
+      background: #0b1020;
+      color: #e2e8f0;
+      border: 1px solid #28305a;
+      border-radius: 14px;
       padding: 18px;
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 13px;
-      line-height: 1.8;
+      font-size: 12.5px;
+      line-height: 1.85;
       white-space: pre-wrap;
-      overflow-x: auto;
+      overflow: auto;
+      max-height: 560px;
       direction: ltr;
       text-align: left;
     }
 
-    /* Saved History Records Table */
+    /* ---------- Step-by-step report ---------- */
+    .report { display: flex; flex-direction: column; gap: 14px; }
+    .report .num { direction: ltr; unicode-bidi: isolate; display: inline-block; }
+    .rp-top {
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+      padding: 14px 18px; border-radius: 14px;
+      background: var(--primary-light); border: 1px solid var(--primary-border);
+    }
+    .rp-top-title { font-size: 16px; font-weight: 800; color: var(--primary); }
+    .rp-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+    .rp-chip { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 999px; padding: 3px 12px; font-size: 12px; font-weight: 700; color: var(--text-muted); }
+
+    .rp-step { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; }
+    .rp-head { display: flex; gap: 12px; align-items: flex-start; padding: 14px 18px; background: var(--soft); border-bottom: 1px solid var(--border-color); }
+    .rp-n {
+      flex: none; width: 32px; height: 32px; border-radius: 50%;
+      display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 15px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+    }
+    .rp-head h4 { font-size: 15.5px; font-weight: 800; color: var(--text-main); }
+    .rp-head p { font-size: 12.5px; color: var(--text-light); line-height: 1.7; margin-top: 1px; }
+    .rp-body { padding: 8px 18px 14px; }
+
+    .rp-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px dashed var(--border-color); font-size: 13.5px; }
+    .rp-row:last-child { border-bottom: 0; }
+    .rp-label { display: flex; align-items: center; gap: 10px; color: var(--text-main); font-weight: 600; }
+    .rp-label small { color: var(--text-light); font-weight: 600; }
+    .rp-sign {
+      flex: none; width: 22px; height: 22px; border-radius: 7px; display: grid; place-items: center;
+      font-style: normal; font-weight: 800; font-size: 14px; background: var(--soft); color: var(--text-muted); border: 1px solid var(--border-color);
+    }
+    .rp-num { direction: ltr; unicode-bidi: isolate; white-space: nowrap; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .rp-row.total { margin-top: 6px; padding: 11px 14px; border: 0; border-radius: 12px; background: var(--primary-light); color: var(--primary); }
+    .rp-row.total .rp-label { color: var(--primary); font-weight: 800; }
+    .rp-row.total .rp-sign { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .rp-row.total .rp-num { font-size: 15.5px; }
+    .rp-row.sub { border-bottom: 1px solid var(--border-dark); }
+    .rp-row.sub .rp-label, .rp-row.sub .rp-num { font-weight: 800; }
+    .rp-num.pos, .report .pos { color: var(--success); }
+    .rp-num.neg, .report .neg { color: var(--danger); }
+    .rp-note { font-size: 12px; color: var(--text-light); padding: 2px 32px 8px; }
+    .rp-gap { height: 8px; }
+
+    .rp-eq {
+      display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px;
+      padding: 14px; margin: 6px 0 8px; border-radius: 12px; background: var(--soft);
+      font-size: 16px; font-weight: 800; direction: ltr;
+    }
+    .rp-eq i { font-style: normal; color: var(--text-light); }
+    .rp-eq b { font-size: 19px; }
+    .rp-eq em { font-style: normal; font-size: 13px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 999px; padding: 1px 12px; color: var(--text-muted); direction: rtl; }
+
+    .rp-sub { border: 1px solid var(--border-color); border-radius: 14px; padding: 6px 14px 14px; margin: 10px 0; background: var(--card-bg); }
+    .rp-sub-title { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 14.5px; padding: 8px 0; border-bottom: 1px solid var(--border-color); margin-bottom: 4px; }
+    .rp-sub-title .avatar { width: 30px; height: 30px; font-size: 14px; border-radius: 10px; }
+
+    .rp-flag { margin-top: 10px; padding: 9px 14px; border-radius: 12px; font-size: 13px; font-weight: 700; }
+    .rp-flag.info { background: var(--gold-light); color: var(--gold); border: 1px solid var(--gold-border); }
+    .rp-flag.warn { background: var(--gold-light); color: var(--gold); border: 1px solid var(--gold-border); }
+    .rp-flag.get  { background: var(--success-light); color: var(--success); border: 1px solid var(--success-border); }
+    .rp-final { margin-top: 12px; padding: 12px 16px; border-radius: 12px; text-align: center; font-size: 16px; font-weight: 800; }
+    .rp-final.pay  { background: var(--danger-light); color: var(--danger); border: 1px solid color-mix(in srgb, var(--danger) 35%, transparent); }
+    .rp-final.get  { background: var(--success-light); color: var(--success); border: 1px solid var(--success-border); }
+    .rp-final.even { background: var(--soft); color: var(--text-muted); border: 1px solid var(--border-color); }
+
+    @media (max-width: 700px) {
+      .rp-head, .rp-body { padding-inline: 12px; }
+      .rp-row { font-size: 13px; }
+      .rp-note { padding-inline: 12px; }
+    }
+
+    /* ---------- History ---------- */
     .history-card {
       background: var(--card-bg);
       border: 1px solid var(--border-color);
-      border-radius: 10px;
+      border-radius: var(--radius);
       padding: 20px;
       margin-top: 24px;
       box-shadow: var(--shadow-sm);
     }
-
     .history-table {
       width: 100%;
-      border-collapse: collapse;
+      border-collapse: separate;
+      border-spacing: 0;
       margin-top: 14px;
       font-size: 13px;
-    }
-
-    .history-table th, .history-table td {
       border: 1px solid var(--border-color);
-      padding: 10px 12px;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .history-table th, .history-table td {
+      border-bottom: 1px solid var(--border-color);
+      padding: 11px 14px;
       text-align: right;
     }
+    .history-table tr:last-child td { border-bottom: 0; }
+    .history-table th { background: var(--soft); font-weight: 800; color: var(--text-muted); font-size: 12px; }
+    .history-table tbody tr:hover { background: var(--soft); }
 
-    .history-table th {
-      background: #f1f5f9;
-      font-weight: 700;
-      color: var(--text-main);
-    }
-
-    .history-table tr:hover {
-      background: #f8fafc;
-    }
-
-    /* Responsive */
+    /* ---------- Responsive ---------- */
     @media (max-width: 700px) {
-      body { padding: 12px 8px 40px; }
-      .classic-header { padding: 18px 14px; flex-direction: column; align-items: stretch; text-align: center; }
-      .control-bar { flex-direction: column; align-items: stretch; }
-      .control-group { flex-direction: column; align-items: stretch; }
-      .decision-text { font-size: 18px; }
+      body { padding: 12px 10px 50px; }
+      .classic-header { padding: 22px 18px; flex-direction: column; align-items: stretch; text-align: center; }
+      .header-titles h1 { justify-content: center; font-size: 21px; }
+      .header-titles p { text-align: center; }
+      .control-bar, .control-group { flex-direction: column; align-items: stretch; }
+      .control-group .form-input { min-width: 0 !important; }
+      .results-wrapper { padding: 16px; }
+      .dec-line { font-size: 16px; }
       .btn { width: 100%; }
+      .card-title .btn { width: auto; }
     }
 
-    /* Print / PDF */
+    /* ---------- Print / PDF ---------- */
     @media print {
-      body { background: #ffffff; color: #000000; padding: 0; }
+      body { background: #fff; color: #000; padding: 0; }
       .btn, .actions-bar, details, #fileInput, .btn-danger, input, select { display: none !important; }
-      .card, .results-wrapper { box-shadow: none !important; border: 1px solid #000000 !important; page-break-inside: avoid; }
-      .decision-banner { background: #ffffff !important; color: #000000 !important; border: 2px solid #000000 !important; }
-      .decision-text { color: #000000 !important; }
-      .breakdown-box { background: #ffffff !important; color: #000000 !important; border: 1px solid #000000 !important; }
+      .classic-header { background: #fff !important; color: #000 !important; box-shadow: none !important; border: 2px solid #000; }
+      .classic-header *, .header-badge { color: #000 !important; background: none !important; border-color: #000 !important; }
+      .card, .results-wrapper { box-shadow: none !important; border: 1px solid #000 !important; page-break-inside: avoid; }
+      .decision-banner { background: #fff !important; color: #000 !important; border: 2px solid #000 !important; }
+      .decision-text, .dec-line, .decision-badge { color: #000 !important; background: none !important; border-color: #000 !important; }
+      .breakdown-box { background: #fff !important; color: #000 !important; border: 1px solid #000 !important; max-height: none; }
+      .rp-step, .rp-sub { page-break-inside: avoid; border: 1px solid #000 !important; }
+      .rp-head, .rp-top, .rp-row.total { background: #fff !important; color: #000 !important; }
+      .rp-n { background: #fff !important; color: #000 !important; border: 1px solid #000; }
+      .rp-num, .rp-label, .rp-final, .rp-flag { color: #000 !important; }
     }
   </style>
 </head>
@@ -460,7 +609,7 @@
   <!-- Classic Header -->
   <div class="classic-header">
     <div class="header-titles">
-      <h1>🏢 آسان پارٹنرشپ و ایمپلائی کھاتہ سسٹم</h1>
+      <h1><span class="logo">🏢</span> آسان پارٹنرشپ و ایمپلائی کھاتہ سسٹم</h1>
       <p>Multi-Partner Capital & Profit Settlement with Weekly / Monthly Employee Payroll</p>
     </div>
     <div>
@@ -560,7 +709,7 @@
     </div>
 
     <!-- Dynamic Partner Shares Box -->
-    <div style="background: var(--bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 14px 18px; margin-bottom: 20px;">
+    <div style="background: var(--soft); border: 1px solid var(--border-color); border-radius: 14px; padding: 14px 18px; margin-bottom: 22px;">
       <div style="font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 10px;">
         📊 نفع و نقصان میں تمام پارٹنرز کا حصہ (Profit & Loss Distribution):
       </div>
@@ -582,7 +731,7 @@
     </div>
 
     <!-- Detailed Text Breakdown -->
-    <div class="breakdown-box" id="breakdownDetails">
+    <div class="report" id="breakdownDetails">
       حساب کتاب کی تفصیلات لوڈ ہو رہی ہیں...
     </div>
 
@@ -619,56 +768,74 @@
 </div>
 
 <script>
-  // Initial Dynamic Partners
+  // نام کا پہلا حرف (avatar کے لیے)
+  const initial = n => [...String(n || '').trim()][0] || '؟';
+
+  // HTML escape (نام میں " < > ' ہو تو صفحہ خراب نہ ہو)
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  // Default partners: محسن 1/3 ، مزمل 2/3  (ریشو 1:2)
   let partners = [
-    { id: 'p_mohsan', name: 'محسن (آپ)', share: 1, income: 12000, personal_expense: 0 },
-    { id: 'p_muzmal', name: 'مزمل (دوست)', share: 2, income: 10000, personal_expense: 64800 }
+    { id: 'p_mohsan', name: 'محسن', share: 1, income: 0, personal_expense: 0 },
+    { id: 'p_muzmal', name: 'مزمل', share: 2, income: 0, personal_expense: 0 }
   ];
 
-  // Initial Dynamic Employees
+  // Default employees: ایاز ، اشرف ، جاوید
+  const mkEmp = (id, name) => ({
+    id, name,
+    advances: { p_mohsan: 0, p_muzmal: 0 },
+    direct_income: 0, adv_from_emp: 0, adv_to_emp: 0,
+    purchases: 0, salary: 0, salary_payer: 'none',
+    deduction_mode: 'auto', custom_deduction: 0
+  });
   let employees = [
-    { 
-      id: 'emp_1', 
-      name: 'ایاز (Ayaz)', 
-      advances: { p_mohsan: 2000, p_muzmal: 6800 }, 
-      direct_income: 0, 
-      adv_from_emp: 0, 
-      adv_to_emp: 0, 
-      purchases: 6880, 
-      salary: 12000, 
-      salary_payer: 'p_muzmal', 
-      deduction_mode: 'auto', 
-      custom_deduction: 0 
-    },
-    { 
-      id: 'emp_2', 
-      name: 'اشرف (Ashraf)', 
-      advances: { p_mohsan: 0, p_muzmal: 0 }, 
-      direct_income: 0, 
-      adv_from_emp: 0, 
-      adv_to_emp: 0, 
-      purchases: 0, 
-      salary: 0, 
-      salary_payer: 'none', 
-      deduction_mode: 'auto', 
-      custom_deduction: 0 
-    },
-    { 
-      id: 'emp_3', 
-      name: 'جاوید (Javed)', 
-      advances: { p_mohsan: 0, p_muzmal: 0 }, 
-      direct_income: 0, 
-      adv_from_emp: 0, 
-      adv_to_emp: 0, 
-      purchases: 0, 
-      salary: 0, 
-      salary_payer: 'none', 
-      deduction_mode: 'auto', 
-      custom_deduction: 0 
-    }
+    mkEmp('emp_ayaz', 'ایاز'),
+    mkEmp('emp_ashraf', 'اشرف'),
+    mkEmp('emp_javed', 'جاوید')
   ];
 
-  // Saved Ledger History
+  // prompt() کی جگہ اپنا ڈائیلاگ (موبائل/ان-ایپ براؤزر میں prompt بلاک ہو جاتا ہے)
+  function askDialog(title, fields, onOk) {
+    const ov = document.createElement('div');
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:9999;padding:16px';
+    const box = document.createElement('div');
+    box.style.cssText = 'background:#fff;color:#111;border-radius:12px;padding:16px;width:100%;max-width:360px;direction:rtl';
+    box.innerHTML = `<div style="font-weight:800;margin-bottom:10px">${esc(title)}</div>` +
+      fields.map(f => `<label style="display:block;font-size:13px;margin-bottom:8px">${esc(f.label)}
+        <input class="form-input" data-k="${f.key}" type="${f.type || 'text'}" value="${esc(f.value || '')}" style="width:100%;margin-top:3px"></label>`).join('') +
+      `<div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-primary" data-ok>ٹھیک ہے</button><button class="btn btn-secondary" data-cancel>منسوخ</button></div>`;
+    ov.appendChild(box);
+    document.body.appendChild(ov);
+    const close = () => ov.remove();
+    const submit = () => {
+      const v = {};
+      box.querySelectorAll('input[data-k]').forEach(i => { v[i.dataset.k] = i.value; });
+      close();
+      onOk(v);
+    };
+    box.querySelector('[data-ok]').onclick = submit;
+    box.querySelector('[data-cancel]').onclick = close;
+    ov.addEventListener('keydown', e => { if (e.key === 'Enter') submit(); if (e.key === 'Escape') close(); });
+    const first = box.querySelector('input');
+    if (first) first.focus();
+  }
+
+  // پارٹنر کا نام/حصہ بدلنے پر ریشو بیج اور ایمپلائی کارڈز کے لیبل تازہ کرو
+  function onPartnerEdit() {
+    calculate();
+    updateRatioBadge();
+    renderEmployees();
+    calculate();
+  }
+
+  function updateRatioBadge() {
+    const totalShares = partners.reduce((s, p) => s + (p.share || 1), 0);
+    const badgeText = partners.map(p => `${p.name} = ${p.share} (${Math.round((p.share / totalShares) * 100)}%)`).join(' | ');
+    const ratioBadge = document.getElementById('partnershipRatioBadge');
+    if (ratioBadge) ratioBadge.textContent = '📊 پارٹنرز و شیئر تناسب: ' + badgeText;
+  }
+
+// Saved Ledger History
   let savedHistory = [];
 
   function formatPKR(val) {
@@ -697,9 +864,16 @@
 
   // --- PARTNER MANAGEMENT ---
   function addPartnerPrompt() {
-    const name = prompt('نئے پارٹنر کا نام لکھیں (Enter Partner Name):');
+    askDialog('نیا پارٹنر', [
+      { label: 'نام', key: 'name' },
+      { label: 'حسابی حصہ / ریشو (مثلاً 1 یا 2)', key: 'share', type: 'number', value: '1' }
+    ], v => addPartner(v.name, v.share));
+  }
+
+  function addPartner(name, shareStr) {
+    
     if (!name || !name.trim()) return;
-    const shareStr = prompt('اس پارٹنر کا حسابی حصہ / ریشو لکھیں (مثلاً 1 یا 2):', '1');
+    
     const share = parseFloat(shareStr) > 0 ? parseFloat(shareStr) : 1;
 
     const newId = 'p_' + Date.now();
@@ -754,7 +928,7 @@
       return `
         <div class="card card-partner" id="card_partner_${p.id}">
           <div class="card-title">
-            <span>👤 ${p.name}</span>
+            <span class="who"><i class="avatar">${esc(initial(p.name))}</i>${esc(p.name)}</span>
             <div style="display: flex; gap: 8px; align-items: center;">
               <span style="font-size: 12px; color: var(--primary); font-weight: 700;">
                 حصہ: ${p.share} (${sharePct}%)
@@ -766,11 +940,11 @@
           <div class="card-grid-2" style="margin-bottom: 12px;">
             <div class="form-group" style="margin-bottom: 0;">
               <label class="form-label">حسابی حصہ (Ratio / Share):</label>
-              <input type="number" id="inp_p_${p.id}_share" class="form-input" value="${p.share}" step="0.5" min="0.1" oninput="calculate()">
+              <input type="number" id="inp_p_${p.id}_share" class="form-input" value="${p.share}" step="0.5" min="0.1" oninput="onPartnerEdit()">
             </div>
             <div class="form-group" style="margin-bottom: 0;">
               <label class="form-label">نام تبدیل کریں:</label>
-              <input type="text" id="inp_p_${p.id}_name" class="form-input" value="${p.name}" oninput="calculate()">
+              <input type="text" id="inp_p_${p.id}_name" class="form-input" value="${esc(p.name)}" oninput="onPartnerEdit()">
             </div>
           </div>
 
@@ -793,17 +967,16 @@
       `;
     }).join('');
 
-    // Update Top Partnership Ratio Badge
-    const badgeText = partners.map(p => `${p.name} = ${p.share} (${Math.round((p.share / totalShares)*100)}%)`).join(' | ');
-    const ratioBadge = document.getElementById('partnershipRatioBadge');
-    if (ratioBadge) {
-      ratioBadge.textContent = '📊 پارٹنرز و شیئر تناسب: ' + badgeText;
-    }
+    updateRatioBadge();
   }
 
   // --- EMPLOYEE MANAGEMENT ---
   function addEmployeePrompt() {
-    const name = prompt('نئے ایمپلائی کا نام لکھیں (Enter Employee Name):');
+    askDialog('نیا ایمپلائی', [{ label: 'نام', key: 'name' }], v => addEmployee(v.name));
+  }
+
+  function addEmployee(name) {
+    
     if (!name || !name.trim()) return;
 
     const advObj = {};
@@ -860,7 +1033,7 @@
         const val = (emp.advances && emp.advances[p.id]) || 0;
         return `
           <div class="form-group" style="margin-bottom: 0;">
-            <label class="form-label" style="font-size: 11px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${p.name} نے ایڈوانس دیا">${p.name}:</label>
+            <label class="form-label" style="font-size: 11px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${esc(p.name)} نے ایڈوانس دیا">${esc(p.name)}:</label>
             <input type="number" id="inp_${emp.id}_adv_${p.id}" class="form-input" placeholder="0" value="${val > 0 ? val : ''}" oninput="calculate()">
           </div>
         `;
@@ -869,20 +1042,20 @@
       // Dynamic options for salary payer
       const payerOptionsHtml = `
         <option value="none" ${emp.salary_payer === 'none' ? 'selected' : ''}>ابھی ادا نہیں کی (Pending)</option>
-        ${partners.map(p => `<option value="${p.id}" ${emp.salary_payer === p.id ? 'selected' : ''}>${p.name} نے اپنی جیب سے دی</option>`).join('')}
+        ${partners.map(p => `<option value="${p.id}" ${emp.salary_payer === p.id ? 'selected' : ''}>${esc(p.name)} نے اپنی جیب سے دی</option>`).join('')}
         <option value="common" ${emp.salary_payer === 'common' ? 'selected' : ''}>مشترکہ آمدنی / گلے سے دی</option>
       `;
 
       return `
         <div class="card card-employee" id="card_emp_${emp.id}">
           <div class="card-title">
-            <span>👤 ${emp.name}</span>
+            <span class="who"><i class="avatar gold">${esc(initial(emp.name))}</i>${esc(emp.name)}</span>
             <button class="btn btn-danger" onclick="removeEmployee('${emp.id}')">ہٹائیں</button>
           </div>
 
           <!-- Partner Advances -->
-          <div style="background: #f8fafc; border: 1px solid var(--border-color); padding: 10px 12px; border-radius: 8px; margin-bottom: 12px;">
-            <div style="font-size: 11.5px; font-weight: 700; color: var(--primary); margin-bottom: 6px;">
+          <div class="sub-box">
+            <div class="sub-title">
               💼 پارٹنرز کی طرف سے دیا گیا ایڈوانس:
             </div>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(105px, 1fr)); gap: 8px;">
@@ -891,13 +1064,13 @@
           </div>
 
           <!-- Employee to Employee Advances -->
-          <div style="background: var(--gold-light); border: 1px solid #fde047; padding: 10px 12px; border-radius: 8px; margin-bottom: 12px;">
-            <div style="font-size: 11.5px; font-weight: 700; color: var(--gold); margin-bottom: 6px;">
+          <div class="sub-box gold">
+            <div class="sub-title gold">
               🤝 ایمپلائی آپس کا کیش (Inter-Employee):
             </div>
             <div class="card-grid-2">
               <div class="form-group" style="margin-bottom: 0;">
-                <label class="form-label" style="font-size: 11px; color: #0284c7;">+ دوسرے ایمپلائی سے ملا:</label>
+                <label class="form-label" style="font-size: 11px; color: var(--accent);">+ دوسرے ایمپلائی سے ملا:</label>
                 <input type="number" id="inp_${emp.id}_adv_from_emp" class="form-input" placeholder="0" value="${emp.adv_from_emp > 0 ? emp.adv_from_emp : ''}" oninput="calculate()">
               </div>
               <div class="form-group" style="margin-bottom: 0;">
@@ -920,7 +1093,7 @@
           </div>
 
           <!-- Remaining Cash Badge -->
-          <div style="background: #f1f5f9; border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 6px; margin-bottom: 12px; font-size: 12.5px; display: flex; justify-content: space-between; align-items: center;">
+          <div class="rem-badge">
             <span style="font-weight: 700; color: var(--text-muted);">💼 ایڈوانس سے بچا کیش:</span>
             <strong id="badge_${emp.id}_rem" style="font-size: 14px; font-weight: 800;">Rs. 0.00</strong>
           </div>
@@ -936,7 +1109,7 @@
             </div>
 
             <!-- Deduction Policy -->
-            <div class="form-group" style="background: var(--bg); border: 1px solid var(--border-color); padding: 10px; border-radius: 8px; margin-bottom: 10px;">
+            <div class="form-group ded-box">
               <label class="form-label" style="font-size: 12px; color: var(--primary);">
                 ✂️ ایڈوانس کٹوتی کی پالیسی (Deduction Option):
               </label>
@@ -952,7 +1125,7 @@
             </div>
 
             <!-- Net Salary Highlight -->
-            <div style="background: var(--success-light); border: 1px solid #bbf7d0; padding: 10px 12px; border-radius: 8px; font-size: 12.5px; margin-bottom: 10px;">
+            <div class="net-box">
               <div style="color: var(--text-main);">تنخواہ سے کٹوتی: <strong id="badge_${emp.id}_ded" style="color: var(--danger);">Rs. 0.00</strong></div>
               <div style="font-size: 14px; font-weight: 800; color: var(--success); margin-top: 2px; display: flex; justify-content: space-between; align-items: center;">
                 <span>ادا کرنے والی نیٹ تنخواہ:</span>
@@ -971,6 +1144,102 @@
         </div>
       `;
     }).join('');
+  }
+
+  // --- STEP-BY-STEP REPORT (صاف اور سمجھ آنے والی تفصیل) ---
+  let lastReportText = '';
+
+  function renderReport(c) {
+    const m = formatPKR;
+    const row = (label, val, kind = '', sign = '') => {
+      const tone = kind.includes('auto') ? (val > 0.005 ? ' pos' : val < -0.005 ? ' neg' : '') : '';
+      return `<div class="rp-row ${kind}"><span class="rp-label">${sign ? `<i class="rp-sign">${sign}</i>` : ''}${label}</span><b class="rp-num${tone}">${m(val)}</b></div>`;
+    };
+    const note = t => `<div class="rp-note">${t}</div>`;
+    const step = (n, title, hint, body) => `
+      <section class="rp-step">
+        <div class="rp-head"><span class="rp-n">${n}</span><div><h4>${title}</h4><p>${hint}</p></div></div>
+        <div class="rp-body">${body}</div>
+      </section>`;
+
+    const periodLabel = c.calc_period === 'weekly' ? 'ہفتہ وار حساب' : 'ماہانہ حساب';
+    let h = `<div class="rp-top">
+        <div class="rp-top-title">حساب کتاب کی مکمل تصدیق</div>
+        <div class="rp-chips">
+          <span class="rp-chip">⏱️ ${periodLabel}</span>
+          <span class="rp-chip">📅 ${esc(c.calc_date || new Date().toISOString().split('T')[0])}</span>
+          ${c.calc_title ? `<span class="rp-chip">📝 ${esc(c.calc_title)}</span>` : ''}
+        </div>
+      </div>`;
+
+    // 1. Income
+    h += step(1, 'آمدنی', 'کاروبار میں جتنا پیسہ آیا، چاہے پارٹنر کے ہاتھ آیا یا ملازم کے۔',
+      c.partnerResults.map(p => row(`${esc(p.name)} کے پاس آئی آمدنی`, p.income || 0, '', '+')).join('') +
+      row('ملازمین کے پاس آئی براہ راست آمدنی', c.totalEmpDirectIncome, '', '+') +
+      row('کل کاروباری آمدنی', c.totalIncome, 'total', '='));
+
+    // 2. Expenses
+    const salRows = c.empResults.filter(r => r.sal > 0);
+    const sumNet = salRows.reduce((s, r) => s + r.netSal, 0);
+    const sumDed = salRows.reduce((s, r) => s + r.ded, 0);
+    h += step(2, 'خرچے', 'کاروبار پر جو بھی خرچ ہوا: پارٹنرز کی جیب سے، خریداریاں، اور ملازمین کی تنخواہیں۔',
+      c.partnerResults.map(p => row(`${esc(p.name)} کا ذاتی جیب سے خرچہ`, p.personal_expense || 0, '', '+')).join('') +
+      row('ملازمین کی خریداریاں / خرچے', c.totalEmpPurchases, '', '+') +
+      row('ملازمین کی کل تنخواہ (طے شدہ)', c.totalEmpSalaries, '', '+') +
+      (c.totalEmpSalaries > 0 ? note(`تنخواہ میں سے نقد دی گئی: <b class="num">${m(sumNet)}</b> اور ایڈوانس سے کٹی: <b class="num">${m(sumDed)}</b>`) : '') +
+      row('کل کاروباری خرچے', c.totalExpenses, 'total', '='));
+
+    // 3. Profit / loss
+    const profitWord = c.netProfitOrLoss >= 0 ? 'نفع' : 'نقصان';
+    h += step(3, 'نفع یا نقصان', 'آمدنی میں سے خرچے نکالیں تو جو بچے وہ نفع، اور کم پڑے تو نقصان۔ پھر ہر پارٹنر کو اس کے حصے کے مطابق بانٹ دیا جاتا ہے۔',
+      `<div class="rp-eq"><span class="num">${m(c.totalIncome)}</span><i>−</i><span class="num">${m(c.totalExpenses)}</span><i>=</i><b class="num ${c.netProfitOrLoss >= 0 ? 'pos' : 'neg'}">${m(c.netProfitOrLoss)}</b><em>${profitWord}</em></div>` +
+      c.partnerResults.map(p => row(`${esc(p.name)} کا حصہ <small>(${p.share}/${c.totalShares} = ${Math.round(p.shareFraction * 100)}%)</small>`, p.profitShare, 'auto')).join(''));
+
+    // 4. Employees
+    const active = c.empResults.filter(r => r.advTotal || r.advFrom || r.advTo || r.direct || r.pur || r.sal);
+    let eb = active.map(r => {
+      const modeNote = r.mode === 'none' ? 'اس دفعہ کٹوتی نہیں، ایڈوانس اگلی تنخواہ پر' : r.mode === 'custom' ? 'مرضی کی جزوی کٹوتی' : 'بچا ہوا ایڈوانس خودکار کٹا';
+      let b = r.advList.map(a => row(`${esc(a.name)} نے ایڈوانس دیا`, a.v, '', '+')).join('');
+      if (r.advFrom > 0) b += row('دوسرے ملازم سے ملا', r.advFrom, '', '+');
+      if (r.direct > 0) b += row('براہ راست آمدنی', r.direct, '', '+');
+      if (r.pur > 0) b += row('خریداری / سامان کا خرچہ', r.pur, '', '−');
+      if (r.advTo > 0) b += row('دوسرے ملازم کو دیا', r.advTo, '', '−');
+      b += row('پیسوں میں سے بچا کیش', r.rem, 'sub', '=');
+      if (r.sal > 0) {
+        b += `<div class="rp-gap"></div>` + row('طے شدہ تنخواہ', r.sal) + row('ایڈوانس سے کٹوتی', r.ded, '', '−') + note(modeNote) +
+          row('نیٹ تنخواہ جو ادا ہوئی', r.netSal, 'total', '=') +
+          note(r.payerName ? `ادا کرنے والا: <b>${esc(r.payerName)}</b>` : 'ابھی ادا نہیں کی گئی (Pending)');
+      }
+      if (r.carry > 0.005) b += `<div class="rp-flag info">↪ ${m(r.carry)} ایڈوانس اگلی تنخواہ میں کٹے گا</div>`;
+      if (r.cash > 0.005) b += `<div class="rp-flag warn">💼 ${esc(r.name)} کو ${m(r.cash)} واپس کرنا ہے</div>`;
+      else if (r.cash < -0.005) b += `<div class="rp-flag get">💰 ${esc(r.name)} کو ${m(-r.cash)} ملنے ہیں (اپنی جیب سے زیادہ لگایا)</div>`;
+      return `<div class="rp-sub"><div class="rp-sub-title"><i class="avatar gold">${esc(initial(r.name))}</i>${esc(r.name)}</div>${b}</div>`;
+    }).join('');
+    if (!eb) eb = note('ابھی کسی ملازم کا کوئی اندراج نہیں۔');
+    eb += row('کل ملازمین کے پاس بقایا کیش', c.totalRemainingEmpCash, 'total', '=');
+    h += step(4, 'ملازمین کا کھاتہ', 'ہر ملازم کو جو پیسے ملے، اس نے کہاں خرچے، اور تنخواہ میں سے کیا کٹا۔', eb);
+
+    // 5. Partners
+    const pb = c.partnerResults.map(p => {
+      const fb = p.finalBalance;
+      let b = row('ذاتی جیب سے کاروباری خرچہ', p.personal_expense || 0, '', '+') +
+        row('ملازمین کو ایڈوانس دیا', p.advGiven, '', '+');
+      if (p.netSalGiven > 0) b += row('نیٹ تنخواہ اپنی جیب سے دی', p.netSalGiven, '', '+');
+      if (p.carried > 0.005) b += row('اگلے کھاتے میں منتقل ایڈوانس', p.carried, '', '−');
+      b += row('کل جیب سے لگایا', p.outOfPocket, 'sub', '=') +
+        row('آمدنی جو اپنے پاس رکھی', p.income || 0, '', '−') +
+        row('بزنس کو نیٹ دیا', p.netCashGivenToBiz, 'sub', '=') +
+        row(`${profitWord} کا حصہ`, p.profitShare, 'auto', '+');
+      const verdict = Math.abs(fb) < 0.01
+        ? `<div class="rp-final even">✅ ${esc(p.name)} کا حساب برابر ہے</div>`
+        : fb < 0
+          ? `<div class="rp-final pay">⬆️ ${esc(p.name)} کو <b class="num">${m(-fb)}</b> دینے ہیں</div>`
+          : `<div class="rp-final get">⬇️ ${esc(p.name)} کو <b class="num">${m(fb)}</b> لینے ہیں</div>`;
+      return `<div class="rp-sub"><div class="rp-sub-title"><i class="avatar">${esc(initial(p.name))}</i>${esc(p.name)} کا ذاتی کھاتہ</div>${b}${verdict}</div>`;
+    }).join('');
+    h += step(5, 'پارٹنرز کا حتمی کھاتہ', 'ہر پارٹنر نے اپنی جیب سے کتنا لگایا، کتنا پیسہ اپنے پاس رکھا، اور حصے کے مطابق کتنا نفع/نقصان بنا۔ آخر میں فرق نکل آتا ہے۔', pb);
+
+    document.getElementById('breakdownDetails').innerHTML = h;
   }
 
   // --- CORE CALCULATION ENGINE ---
@@ -994,10 +1263,12 @@
     const pOutOfPocket = {};
     const pAdvTotals = {};
     const pNetSalTotals = {};
+    const pCarry = {};
     partners.forEach(p => {
       pOutOfPocket[p.id] = p.personal_expense || 0;
       pAdvTotals[p.id] = 0;
       pNetSalTotals[p.id] = 0;
+      pCarry[p.id] = 0;
     });
 
     // 2. Read Employees
@@ -1005,9 +1276,11 @@
     let totalEmpDirectIncome = 0;
     let totalEmpSalaries = 0;
     let totalRemainingEmpCash = 0;
+    const empResults = [];
+    let totalAdvFromEmp = 0, totalAdvToEmp = 0;
 
     employees.forEach(e => {
-      const elFromEmp = document.getElementById(`inp_${emp_from_id = e.id}_adv_from_emp`);
+      const elFromEmp = document.getElementById(`inp_${e.id}_adv_from_emp`);
       const elToEmp = document.getElementById(`inp_${e.id}_adv_to_emp`);
       const elPur = document.getElementById(`inp_${e.id}_pur`);
       const elInc = document.getElementById(`inp_${e.id}_inc`);
@@ -1019,11 +1292,13 @@
       if (!e.advances) e.advances = {};
 
       let empInflow = 0;
+      let partnerAdvTotal = 0;
       partners.forEach(p => {
         const elAdv = document.getElementById(`inp_${e.id}_adv_${p.id}`);
         const advVal = elAdv ? (parseFloat(elAdv.value) || 0) : (e.advances[p.id] || 0);
         e.advances[p.id] = advVal;
         empInflow += advVal;
+        partnerAdvTotal += advVal;
         pAdvTotals[p.id] += advVal;
         pOutOfPocket[p.id] += advVal;
       });
@@ -1045,6 +1320,8 @@
       e.salary_payer = payer;
       e.deduction_mode = dedMode;
       e.custom_deduction = customDed;
+      totalAdvFromEmp += advFromEmp;
+      totalAdvToEmp += advToEmp;
 
       totalEmpPurchases += pur;
       totalEmpDirectIncome += inc;
@@ -1085,7 +1362,25 @@
         }
       }
 
-      totalRemainingEmpCash += remainingCashAfterSal;
+      // اگلی تنخواہ تک مؤخر کیا گیا ایڈوانس ملازم کے ذمے قرض رہتا ہے:
+      // پارٹنر کو اس کی واپسی اس دفعہ نہیں ملتی اور ملازم سے "واپسی" بھی نہیں مانگی جاتی۔
+      let carry = 0;
+      if (dedMode !== 'auto' && partnerAdvTotal > 0 && remainingCashAfterSal > 0) {
+        carry = Math.min(remainingCashAfterSal, partnerAdvTotal);
+        partners.forEach(p => {
+          const share = carry * ((e.advances[p.id] || 0) / partnerAdvTotal);
+          pOutOfPocket[p.id] -= share;
+          pCarry[p.id] += share;
+        });
+      }
+      totalRemainingEmpCash += remainingCashAfterSal - carry;
+      empResults.push({
+        id: e.id, name: e.name, cash: remainingCashAfterSal - carry, carry,
+        advList: partners.map(p => ({ name: p.name, v: e.advances[p.id] || 0 })).filter(x => x.v > 0),
+        advTotal: partnerAdvTotal, advFrom: advFromEmp, advTo: advToEmp, direct: inc, pur, rem,
+        sal, ded, netSal, mode: dedMode,
+        payerName: payer === 'none' ? '' : payer === 'common' ? 'مشترکہ آمدنی / گلا' : ((partners.find(p => p.id === payer) || {}).name || '')
+      });
 
       const badgeDed = document.getElementById(`badge_${e.id}_ded`);
       const badgeNet = document.getElementById(`badge_${e.id}_net`);
@@ -1114,6 +1409,7 @@
         outOfPocket,
         advGiven: pAdvTotals[p.id] || 0,
         netSalGiven: pNetSalTotals[p.id] || 0,
+        carried: pCarry[p.id] || 0,
         netCashGivenToBiz,
         finalBalance
       };
@@ -1148,8 +1444,8 @@
     const sharesListEl = document.getElementById('partnerSharesList');
     if (sharesListEl) {
       sharesListEl.innerHTML = partnerResults.map(p => `
-        <div style="background: #ffffff; border: 1px solid var(--border-color); border-radius: 6px; padding: 8px 14px; font-size: 13px;">
-          <strong>${p.name}</strong> (${p.share}/${totalShares}):
+        <div class="share-chip">
+          <strong>${esc(p.name)}</strong> (${p.share}/${totalShares}):
           <span style="font-weight: 800; color: ${p.profitShare >= 0 ? 'var(--success)' : 'var(--danger)'}; margin-right: 4px;">
             ${formatPKR(p.profitShare)}
           </span>
@@ -1163,12 +1459,17 @@
     const empRound = Math.round(totalRemainingEmpCash * 100) / 100;
 
     let decisionText = '';
-    if (creditors.length === 0 && debtors.length === 0 && empRound === 0) {
+    if (creditors.length === 0 && debtors.length === 0 && empRound === 0 && !empResults.some(r => Math.abs(r.cash) > 0.005 || r.carry > 0.005)) {
       decisionText = 'سب کا حساب بالکل برابر ہے! کوئی لین دین باقی نہیں۔';
     } else {
       const directives = [];
-      if (empRound > 0) {
-        directives.push(`👉 ایمپلائز واپس کریں گے / تنخواہ سے کٹے گا: ${formatPKR(empRound)}`);
+      {
+        empResults.forEach(r => {
+          const c = Math.round(r.cash * 100) / 100;
+          if (c > 0) directives.push(`👉 ${r.name} واپس کرے گا (بچا ہوا کیش): ${formatPKR(c)}`);
+          else if (c < 0) directives.push(`👉 ${r.name} کو ملیں گے (اپنی جیب سے زیادہ لگایا): ${formatPKR(-c)}`);
+          if (r.carry > 0.005) directives.push(`↪ ${r.name}: ${formatPKR(r.carry)} ایڈوانس اگلی تنخواہ میں کٹے گا`);
+        });
       }
       debtors.forEach(d => {
         directives.push(`👉 ${d.name} دے گا: ${formatPKR(d.amt)}`);
@@ -1176,9 +1477,21 @@
       creditors.forEach(c => {
         directives.push(`👉 ${c.name} کو ملیں گے: ${formatPKR(c.amt)}`);
       });
+      if (Math.abs(totalAdvFromEmp - totalAdvToEmp) > 0.5) {
+        directives.push(`⚠️ ایمپلائی آپس کا کیش برابر نہیں: "ملا" ${formatPKR(totalAdvFromEmp)} بمقابلہ "دیا" ${formatPKR(totalAdvToEmp)}`);
+      }
       decisionText = directives.join('\n');
     }
-    document.getElementById('finalDecisionText').innerText = decisionText;
+    document.getElementById('finalDecisionText').innerHTML = decisionText.split('\n').map(l => {
+      let c = '';
+      if (l.startsWith('↪')) c = 'info';
+      else if (l.startsWith('⚠')) c = 'warn';
+      else if (l.includes('واپس کرے گا')) c = 'info';
+      else if (l.includes('دے گا')) c = 'pay';
+      else if (l.includes('ملیں گے')) c = 'get';
+      else if (l.includes('برابر')) c = 'ok';
+      return `<div class="dec-line ${c}">${esc(l)}</div>`;
+    }).join('');
 
     // 6. Build Comprehensive Verification Report
     let bd = '';
@@ -1256,6 +1569,8 @@
       bd += `     خریداریاں: -${formatPKR(e.purchases || 0)}`;
       if (e.adv_to_emp > 0) bd += ` | دوسرے ایمپلائی کو ایڈوانس دیا: -${formatPKR(e.adv_to_emp)}`;
       bd += ` | بچا کیش: ${formatPKR(rem)}\n`;
+      const er = empResults.find(x => x.id === e.id);
+      if (er && er.carry > 0.005) bd += `     اگلی تنخواہ میں کٹنے والا ایڈوانس: ${formatPKR(er.carry)}\n`;
 
       if ((e.salary || 0) > 0) {
         let ded = 0;
@@ -1279,6 +1594,7 @@
       if (p.netSalGiven > 0) {
         bd += `       نیٹ تنخواہ اپنی جیب سے دی:`.padEnd(42) + `+${formatPKR(p.netSalGiven)}\n`;
       }
+      if (p.carried > 0.005) bd += `       اگلے کھاتے میں منتقل ایڈوانس:`.padEnd(42) + `-${formatPKR(p.carried)}\n`;
       bd += `       کل جیب سے لگایا (Out of Pocket):`.padEnd(42) + `= ${formatPKR(p.outOfPocket)}\n`;
       bd += `       منفی آمدنی جو اپنے پاس رکھی:`.padEnd(42) + `-${formatPKR(p.income)}\n`;
       bd += `       نیٹ پیسہ جو بزنس کو دیا:`.padEnd(42) + `= ${formatPKR(p.netCashGivenToBiz)}\n`;
@@ -1288,7 +1604,12 @@
     });
     bd += `========================================================================\n`;
 
-    document.getElementById('breakdownDetails').innerText = bd;
+    lastReportText = bd;
+    renderReport({
+      calc_title, calc_date, calc_period, partnerResults, totalShares, empResults,
+      totalIncome, totalExpenses, totalEmpDirectIncome, totalEmpPurchases, totalEmpSalaries,
+      netProfitOrLoss, totalRemainingEmpCash
+    });
   }
 
   // --- RECORD KEEPING & ARCHIVES ---
@@ -1340,11 +1661,11 @@
         <tbody>
           ${savedHistory.map((rec, i) => `
             <tr>
-              <td><strong>${rec.date}</strong></td>
-              <td><span style="background: var(--primary-light); padding: 2px 6px; border-radius: 4px; font-weight: 700; color: var(--primary);">${rec.period}</span></td>
-              <td>${rec.title}</td>
+              <td><strong>${esc(rec.date)}</strong></td>
+              <td><span style="background: var(--primary-light); padding: 2px 6px; border-radius: 4px; font-weight: 700; color: var(--primary);">${esc(rec.period)}</span></td>
+              <td>${esc(rec.title)}</td>
               <td style="font-weight: 700;">${rec.netPnl}</td>
-              <td style="font-size: 12px; max-width: 300px; color: var(--text-muted);">${rec.decision}</td>
+              <td style="font-size: 12px; max-width: 300px; color: var(--text-muted);">${esc(rec.decision)}</td>
               <td>
                 <button class="btn btn-secondary" style="padding: 3px 8px; font-size: 11px;" onclick="loadHistoryRecord('${rec.id}')">کھولیں</button>
                 <button class="btn btn-danger" style="padding: 3px 8px; font-size: 11px;" onclick="deleteHistoryRecord('${rec.id}')">ڈیلیٹ</button>
@@ -1399,14 +1720,14 @@
   // --- DEMO & RESET ---
   function fillUserScenario() {
     partners = [
-      { id: 'p_mohsan', name: 'محسن (آپ)', share: 1, income: 12000, personal_expense: 0 },
-      { id: 'p_muzmal', name: 'مزمل (دوست)', share: 2, income: 10000, personal_expense: 64800 }
+      { id: 'p_mohsan', name: 'محسن', share: 1, income: 12000, personal_expense: 0 },
+      { id: 'p_muzmal', name: 'مزمل', share: 2, income: 10000, personal_expense: 64800 }
     ];
 
     employees = [
       { 
         id: 'emp_1', 
-        name: 'ایاز (Ayaz)', 
+        name: 'ایاز', 
         advances: { p_mohsan: 2000, p_muzmal: 6800 }, 
         direct_income: 0, 
         adv_from_emp: 0, 
@@ -1419,7 +1740,7 @@
       },
       { 
         id: 'emp_2', 
-        name: 'اشرف (Ashraf)', 
+        name: 'اشرف', 
         advances: { p_mohsan: 0, p_muzmal: 0 }, 
         direct_income: 0, 
         adv_from_emp: 0, 
@@ -1432,7 +1753,7 @@
       },
       { 
         id: 'emp_3', 
-        name: 'جاوید (Javed)', 
+        name: 'جاوید', 
         advances: { p_mohsan: 0, p_muzmal: 0 }, 
         direct_income: 0, 
         adv_from_emp: 500, 
@@ -1482,7 +1803,7 @@
 
   // --- EXPORT & COPY ---
   function copyReport() {
-    const text = document.getElementById('breakdownDetails').innerText;
+    const text = lastReportText;
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(() => {
         alert('✅ رپورٹ کلپ بورڈ پر کاپی ہو گئی ہے! آپ واٹس ایپ وغیرہ پر بھیج سکتے ہیں۔');
@@ -1507,7 +1828,7 @@
   }
 
   function downloadTxtReport() {
-    const text = document.getElementById('breakdownDetails').innerText;
+    const text = lastReportText;
     const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -1599,7 +1920,7 @@
         if (s.calc_title) document.getElementById('calc_title').value = s.calc_title;
       } catch(e) {}
     } else {
-      fillUserScenario();
+      // نیا شروع: ڈیفالٹ پارٹنرز (محسن، مزمل) اور ایمپلائز (ایاز، اشرف، جاوید)
     }
 
     renderPartners();
