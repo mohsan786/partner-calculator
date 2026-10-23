@@ -1056,7 +1056,7 @@
           <!-- Partner Advances -->
           <div class="sub-box">
             <div class="sub-title">
-              💼 پارٹنرز کی طرف سے دیا گیا ایڈوانس:
+              💼 پارٹنرز کی طرف سے دیا گیا ایڈوانس:${emp.carried_in > 0 ? ` <span style="color: var(--gold);">↩ پچھلے کھاتے کا ${formatPKR(emp.carried_in)} خود بھر دیا گیا</span>` : ''}
             </div>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(105px, 1fr)); gap: 8px;">
               ${advInputsHtml}
@@ -1365,12 +1365,14 @@
       // اگلی تنخواہ تک مؤخر کیا گیا ایڈوانس ملازم کے ذمے قرض رہتا ہے:
       // پارٹنر کو اس کی واپسی اس دفعہ نہیں ملتی اور ملازم سے "واپسی" بھی نہیں مانگی جاتی۔
       let carry = 0;
+      e.carry_by_partner = {};
       if (dedMode !== 'auto' && partnerAdvTotal > 0 && remainingCashAfterSal > 0) {
         carry = Math.min(remainingCashAfterSal, partnerAdvTotal);
         partners.forEach(p => {
           const share = carry * ((e.advances[p.id] || 0) / partnerAdvTotal);
           pOutOfPocket[p.id] -= share;
           pCarry[p.id] += share;
+          e.carry_by_partner[p.id] = share;
         });
       }
       totalRemainingEmpCash += remainingCashAfterSal - carry;
@@ -1776,6 +1778,7 @@
   }
 
   function resetForm() {
+    if (!confirm('نیا کھاتہ شروع کریں؟\n(پرانا کھاتہ محفوظ کرنا ہو تو پہلے "یہ کھاتہ محفوظ کریں" دبائیں۔ ملازمین کا باقی ایڈوانس نئے کھاتے میں خود آ جائے گا۔)')) return;
     partners.forEach(p => {
       p.income = 0;
       p.personal_expense = 0;
@@ -1783,9 +1786,12 @@
 
     employees.forEach(e => {
       if (e.advances) {
-        partners.forEach(p => { e.advances[p.id] = 0; });
+        // پچھلے کھاتے میں جو ایڈوانس مؤخر ہوا تھا وہ نئے کھاتے میں خود بھر جائے
+        partners.forEach(p => { e.advances[p.id] = Math.round(((e.carry_by_partner && e.carry_by_partner[p.id]) || 0) * 100) / 100; });
       }
       e.direct_income = 0;
+      e.carried_in = Object.values(e.advances || {}).reduce((s, v) => s + (v || 0), 0);
+      e.carry_by_partner = {};
       e.adv_from_emp = 0;
       e.adv_to_emp = 0;
       e.purchases = 0;
