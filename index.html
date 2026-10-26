@@ -8,6 +8,7 @@
   <meta http-equiv="Expires" content="0">
   <title>کلاسک پارٹنرشپ اور ایمپلائی کھاتہ سسٹم</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;600;700&family=Noto+Sans+Arabic:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
   <style>
@@ -175,6 +176,25 @@
     .field-item { display: flex; flex-direction: column; gap: 5px; }
     .field-item label { font-size: 12px; font-weight: 700; color: var(--text-muted); }
     #calc_period { min-width: 250px !important; }
+
+    /* ---------- Cloud sync ---------- */
+    [hidden] { display: none !important; }
+    .cloud-bar {
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+      margin: 0 0 16px; padding: 9px 16px; border-radius: 12px;
+      background: var(--soft); border: 1px solid var(--border-color);
+      font-size: 12.5px; font-weight: 700; color: var(--text-muted);
+    }
+    .cloud-bar .grow { flex: 1; }
+    .cloud-status.ok { color: var(--success); }
+    .cloud-status.bad { color: var(--danger); }
+    .cloud-banner {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+      margin: 0 0 16px; padding: 12px 16px; border-radius: 12px;
+      background: var(--gold-light); border: 1px solid var(--gold-border); color: var(--gold);
+      font-size: 13px; font-weight: 700;
+    }
+    @media print { .cloud-bar, .cloud-banner { display: none !important; } }
 
     /* ---------- Buttons ---------- */
     .btn {
@@ -619,6 +639,18 @@
     </div>
   </div>
 
+  <!-- Cloud sync bar (shown only when Supabase is configured) -->
+  <div class="cloud-bar" id="cloudBar" hidden>
+    <span class="cloud-status" id="cloudStatus">☁️</span>
+    <span class="grow"></span>
+    <span id="cloudUser" style="direction: ltr;"></span>
+    <button class="btn btn-secondary" id="cloudLogout" style="padding: 4px 12px; font-size: 12px;">لاگ آؤٹ</button>
+  </div>
+  <div class="cloud-banner" id="cloudBanner" hidden>
+    <span id="cloudBannerText"></span>
+    <button class="btn btn-primary" id="cloudBannerBtn" style="padding: 5px 14px; font-size: 12px;">🔄 تازہ ڈیٹا لوڈ کریں</button>
+  </div>
+
   <!-- Period & Date Control Bar -->
   <div class="control-bar">
     <div class="control-group">
@@ -786,6 +818,7 @@
     advances: { p_mohsan: 0, p_muzmal: 0 },
     direct_income: 0, adv_from_emp: 0, adv_to_emp: 0,
     purchases: 0, salary: 0, salary_payer: 'none',
+    bonus: 0, peshgi_ded: 0, peshgi_by: 'pool', paid_by: {},
     deduction_mode: 'auto', custom_deduction: 0
   });
   let employees = [
@@ -1013,6 +1046,13 @@
     }
   }
 
+  function onPayerChange(empId) {
+    const sel = document.getElementById(`inp_${empId}_payer`);
+    const box = document.getElementById(`box_${empId}_split`);
+    if (box && sel) box.style.display = sel.value === 'split' ? 'block' : 'none';
+    calculate();
+  }
+
   function onDeductionModeChange(empId) {
     const sel = document.getElementById(`inp_${empId}_ded_mode`);
     const customBox = document.getElementById(`box_${empId}_custom_ded`);
@@ -1039,11 +1079,32 @@
         `;
       }).join('');
 
+      // نیٹ تنخواہ کئی لوگ مل کر دیں تو ہر ایک کی رقم
+      const paid = emp.paid_by || {};
+      const splitHtml = `
+        <div id="box_${emp.id}_split" class="sub-box" style="display: ${emp.salary_payer === 'split' ? 'block' : 'none'}; margin-top: 8px; margin-bottom: 0;">
+          <div class="sub-title">نیٹ تنخواہ میں سے کس نے کتنی دی:</div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(105px, 1fr)); gap: 8px;">
+            ${partners.map(p => `
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label" style="font-size: 11px; margin-bottom: 2px;">${esc(p.name)}:</label>
+                <input type="number" id="inp_${emp.id}_pay_${p.id}" class="form-input" placeholder="0" value="${paid[p.id] > 0 ? paid[p.id] : ''}" oninput="calculate()">
+              </div>`).join('')}
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" style="font-size: 11px; margin-bottom: 2px;">مشترکہ گلا:</label>
+              <input type="number" id="inp_${emp.id}_pay_common" class="form-input" placeholder="0" value="${paid.common > 0 ? paid.common : ''}" oninput="calculate()">
+            </div>
+          </div>
+        </div>`;
+      const pdByHtml = `<option value="pool" ${(emp.peshgi_by || 'pool') === 'pool' ? 'selected' : ''}>مشترکہ / معلوم نہیں (ریشو کے مطابق)</option>` +
+        partners.map(p => `<option value="${p.id}" ${emp.peshgi_by === p.id ? 'selected' : ''}>${esc(p.name)}</option>`).join('');
+
       // Dynamic options for salary payer
       const payerOptionsHtml = `
         <option value="none" ${emp.salary_payer === 'none' ? 'selected' : ''}>ابھی ادا نہیں کی (Pending)</option>
         ${partners.map(p => `<option value="${p.id}" ${emp.salary_payer === p.id ? 'selected' : ''}>${esc(p.name)} نے اپنی جیب سے دی</option>`).join('')}
         <option value="common" ${emp.salary_payer === 'common' ? 'selected' : ''}>مشترکہ آمدنی / گلے سے دی</option>
+        <option value="split" ${emp.salary_payer === 'split' ? 'selected' : ''}>👥 تقسیم: کئی لوگوں نے مل کر دی (رقمیں خود لکھیں)</option>
       `;
 
       return `
@@ -1108,6 +1169,21 @@
               <input type="number" id="inp_${emp.id}_sal" class="form-input" placeholder="0" value="${emp.salary > 0 ? emp.salary : ''}" oninput="calculate()">
             </div>
 
+            <div class="card-grid-2" style="margin-bottom: 14px;">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">🎁 بونس <span class="form-sub">تنخواہ کے علاوہ انعام</span></label>
+                <input type="number" id="inp_${emp.id}_bonus" class="form-input" placeholder="0" value="${emp.bonus > 0 ? emp.bonus : ''}" oninput="calculate()">
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">🧾 پرانی پیشگی کی کٹوتی <span class="form-sub">کاروبار کی دی ہوئی، اس تنخواہ سے کاٹنی ہے</span></label>
+                <input type="number" id="inp_${emp.id}_pd" class="form-input" placeholder="0" value="${emp.peshgi_ded > 0 ? emp.peshgi_ded : ''}" oninput="calculate()">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="form-sub" style="font-size: 11.5px;">ℹ️ پرانی پیشگی کاروبار کی رقم میں سے دی گئی سمجھی جاتی ہے۔ اس کی واپسی (کٹوتی) سب پارٹنرز کے حصے (ریشو) کے مطابق شمار ہوتی ہے۔</div>
+            </div>
+
             <!-- Deduction Policy -->
             <div class="form-group ded-box">
               <label class="form-label" style="font-size: 12px; color: var(--primary);">
@@ -1126,7 +1202,9 @@
 
             <!-- Net Salary Highlight -->
             <div class="net-box">
-              <div style="color: var(--text-main);">تنخواہ سے کٹوتی: <strong id="badge_${emp.id}_ded" style="color: var(--danger);">Rs. 0.00</strong></div>
+              <div style="color: var(--text-main);">ایڈوانس سے کٹوتی: <strong id="badge_${emp.id}_ded" style="color: var(--danger);">Rs. 0.00</strong></div>
+              <div style="color: var(--text-main);">پرانی پیشگی کی کٹوتی: <strong id="badge_${emp.id}_pd" style="color: var(--danger);">Rs. 0.00</strong></div>
+              <div style="color: var(--text-main);">ابھی ادا ہونا باقی: <strong id="badge_${emp.id}_unpaid" style="color: var(--gold);">Rs. 0.00</strong></div>
               <div style="font-size: 14px; font-weight: 800; color: var(--success); margin-top: 2px; display: flex; justify-content: space-between; align-items: center;">
                 <span>ادا کرنے والی نیٹ تنخواہ:</span>
                 <span id="badge_${emp.id}_net">Rs. 0.00</span>
@@ -1136,9 +1214,10 @@
             <!-- Salary Payer Selection -->
             <div class="form-group" style="margin-bottom: 0;">
               <label class="form-label" style="font-weight: 700;">یہ نیٹ تنخواہ کس نے ادا کی؟</label>
-              <select id="inp_${emp.id}_payer" class="form-input" onchange="calculate()">
+              <select id="inp_${emp.id}_payer" class="form-input" onchange="onPayerChange('${emp.id}')">
                 ${payerOptionsHtml}
               </select>
+              ${splitHtml}
             </div>
           </div>
         </div>
@@ -1156,6 +1235,14 @@
       return `<div class="rp-row ${kind}"><span class="rp-label">${sign ? `<i class="rp-sign">${sign}</i>` : ''}${label}</span><b class="rp-num${tone}">${m(val)}</b></div>`;
     };
     const note = t => `<div class="rp-note">${t}</div>`;
+    const payNote = r => {
+      let t = r.paidTotal <= 0.005
+        ? 'ابھی ادا نہیں کی گئی (Pending)'
+        : 'ادا کرنے والا: ' + r.paidList.map(x => `<b>${esc(x.name)}</b> <span class="num">${m(x.v)}</span>`).join(' + ');
+      if (r.unpaid > 0.5 && r.paidTotal > 0.005) t += ` — باقی ادا ہونا: <b class="num">${m(r.unpaid)}</b>`;
+      if (r.overpaid > 0.5) t += ` — ⚠️ نیٹ سے <b class="num">${m(r.overpaid)}</b> زیادہ لکھا ہے`;
+      return t;
+    };
     const step = (n, title, hint, body) => `
       <section class="rp-step">
         <div class="rp-head"><span class="rp-n">${n}</span><div><h4>${title}</h4><p>${hint}</p></div></div>
@@ -1179,14 +1266,15 @@
       row('کل کاروباری آمدنی', c.totalIncome, 'total', '='));
 
     // 2. Expenses
-    const salRows = c.empResults.filter(r => r.sal > 0);
+    const salRows = c.empResults.filter(r => r.sal > 0 || r.bonus > 0);
     const sumNet = salRows.reduce((s, r) => s + r.netSal, 0);
-    const sumDed = salRows.reduce((s, r) => s + r.ded, 0);
+    const sumDed = salRows.reduce((s, r) => s + r.ded + r.pd, 0);
     h += step(2, 'خرچے', 'کاروبار پر جو بھی خرچ ہوا: پارٹنرز کی جیب سے، خریداریاں، اور ملازمین کی تنخواہیں۔',
       c.partnerResults.map(p => row(`${esc(p.name)} کا ذاتی جیب سے خرچہ`, p.personal_expense || 0, '', '+')).join('') +
       row('ملازمین کی خریداریاں / خرچے', c.totalEmpPurchases, '', '+') +
+      (c.totalEmpBonus > 0 ? row('ملازمین کا بونس', c.totalEmpBonus, '', '+') : '') +
       row('ملازمین کی کل تنخواہ (طے شدہ)', c.totalEmpSalaries, '', '+') +
-      (c.totalEmpSalaries > 0 ? note(`تنخواہ میں سے نقد دی گئی: <b class="num">${m(sumNet)}</b> اور ایڈوانس سے کٹی: <b class="num">${m(sumDed)}</b>`) : '') +
+      (c.totalEmpSalaries > 0 ? note(`تنخواہ میں سے نقد دی گئی: <b class="num">${m(sumNet)}</b> اور ایڈوانس/پیشگی سے کٹی: <b class="num">${m(sumDed)}</b>`) : '') +
       row('کل کاروباری خرچے', c.totalExpenses, 'total', '='));
 
     // 3. Profit / loss
@@ -1196,7 +1284,7 @@
       c.partnerResults.map(p => row(`${esc(p.name)} کا حصہ <small>(${p.share}/${c.totalShares} = ${Math.round(p.shareFraction * 100)}%)</small>`, p.profitShare, 'auto')).join(''));
 
     // 4. Employees
-    const active = c.empResults.filter(r => r.advTotal || r.advFrom || r.advTo || r.direct || r.pur || r.sal);
+    const active = c.empResults.filter(r => r.advTotal || r.advFrom || r.advTo || r.direct || r.pur || r.sal || r.bonus || r.pd);
     let eb = active.map(r => {
       const modeNote = r.mode === 'none' ? 'اس دفعہ کٹوتی نہیں، ایڈوانس اگلی تنخواہ پر' : r.mode === 'custom' ? 'مرضی کی جزوی کٹوتی' : 'بچا ہوا ایڈوانس خودکار کٹا';
       let b = r.advList.map(a => row(`${esc(a.name)} نے ایڈوانس دیا`, a.v, '', '+')).join('');
@@ -1205,10 +1293,13 @@
       if (r.pur > 0) b += row('خریداری / سامان کا خرچہ', r.pur, '', '−');
       if (r.advTo > 0) b += row('دوسرے ملازم کو دیا', r.advTo, '', '−');
       b += row('پیسوں میں سے بچا کیش', r.rem, 'sub', '=');
-      if (r.sal > 0) {
-        b += `<div class="rp-gap"></div>` + row('طے شدہ تنخواہ', r.sal) + row('ایڈوانس سے کٹوتی', r.ded, '', '−') + note(modeNote) +
+      if (r.sal > 0 || r.bonus > 0) {
+        b += `<div class="rp-gap"></div>` + row('طے شدہ تنخواہ', r.sal) +
+          (r.bonus > 0 ? row('🎁 بونس', r.bonus, '', '+') : '') +
+          row('ایڈوانس سے کٹوتی', r.ded, '', '−') + note(modeNote) +
+          (r.pd > 0 ? row('پرانی پیشگی کی کٹوتی', r.pd, '', '−') : '') +
           row('نیٹ تنخواہ جو ادا ہوئی', r.netSal, 'total', '=') +
-          note(r.payerName ? `ادا کرنے والا: <b>${esc(r.payerName)}</b>` : 'ابھی ادا نہیں کی گئی (Pending)');
+          note(payNote(r));
       }
       if (r.carry > 0.005) b += `<div class="rp-flag info">↪ ${m(r.carry)} ایڈوانس اگلی تنخواہ میں کٹے گا</div>`;
       if (r.cash > 0.005) b += `<div class="rp-flag warn">💼 ${esc(r.name)} کو ${m(r.cash)} واپس کرنا ہے</div>`;
@@ -1226,6 +1317,7 @@
         row('ملازمین کو ایڈوانس دیا', p.advGiven, '', '+');
       if (p.netSalGiven > 0) b += row('نیٹ تنخواہ اپنی جیب سے دی', p.netSalGiven, '', '+');
       if (p.carried > 0.005) b += row('اگلے کھاتے میں منتقل ایڈوانس', p.carried, '', '−');
+      if (p.peshgiCredit > 0.005) b += row('پرانی پیشگی کی واپسی کا حصہ', p.peshgiCredit, '', '+');
       b += row('کل جیب سے لگایا', p.outOfPocket, 'sub', '=') +
         row('آمدنی جو اپنے پاس رکھی', p.income || 0, '', '−') +
         row('بزنس کو نیٹ دیا', p.netCashGivenToBiz, 'sub', '=') +
@@ -1264,17 +1356,20 @@
     const pAdvTotals = {};
     const pNetSalTotals = {};
     const pCarry = {};
+    const pPeshgiCredit = {};
     partners.forEach(p => {
       pOutOfPocket[p.id] = p.personal_expense || 0;
       pAdvTotals[p.id] = 0;
       pNetSalTotals[p.id] = 0;
       pCarry[p.id] = 0;
+      pPeshgiCredit[p.id] = 0;
     });
 
     // 2. Read Employees
     let totalEmpPurchases = 0;
     let totalEmpDirectIncome = 0;
     let totalEmpSalaries = 0;
+    let totalEmpBonus = 0;
     let totalRemainingEmpCash = 0;
     const empResults = [];
     let totalAdvFromEmp = 0, totalAdvToEmp = 0;
@@ -1288,6 +1383,9 @@
       const elPayer = document.getElementById(`inp_${e.id}_payer`);
       const elDedMode = document.getElementById(`inp_${e.id}_ded_mode`);
       const elCustomDed = document.getElementById(`inp_${e.id}_custom_ded`);
+      const elBonus = document.getElementById(`inp_${e.id}_bonus`);
+      const elPd = document.getElementById(`inp_${e.id}_pd`);
+      const elPdBy = document.getElementById(`inp_${e.id}_pdby`);
 
       if (!e.advances) e.advances = {};
 
@@ -1311,6 +1409,18 @@
       const payer = elPayer ? elPayer.value : (e.salary_payer || 'none');
       const dedMode = elDedMode ? elDedMode.value : (e.deduction_mode || 'auto');
       const customDed = elCustomDed ? (parseFloat(elCustomDed.value) || 0) : (e.custom_deduction || 0);
+      const bonus = elBonus ? (parseFloat(elBonus.value) || 0) : (e.bonus || 0);
+      const peshgiDed = elPd ? (parseFloat(elPd.value) || 0) : (e.peshgi_ded || 0);
+      const pdBy = 'pool'; // پرانی پیشگی ہمیشہ کاروبار کی رقم: واپسی ریشو کے مطابق سب پارٹنرز میں
+      const paidMap = {};
+      partners.forEach(p => {
+        const el = document.getElementById(`inp_${e.id}_pay_${p.id}`);
+        paidMap[p.id] = el ? (parseFloat(el.value) || 0) : ((e.paid_by && e.paid_by[p.id]) || 0);
+      });
+      {
+        const el = document.getElementById(`inp_${e.id}_pay_common`);
+        paidMap.common = el ? (parseFloat(el.value) || 0) : ((e.paid_by && e.paid_by.common) || 0);
+      }
 
       e.adv_from_emp = advFromEmp;
       e.adv_to_emp = advToEmp;
@@ -1322,6 +1432,11 @@
       e.custom_deduction = customDed;
       totalAdvFromEmp += advFromEmp;
       totalAdvToEmp += advToEmp;
+      e.bonus = bonus;
+      e.peshgi_ded = peshgiDed;
+      e.peshgi_by = pdBy;
+      e.paid_by = paidMap;
+      totalEmpBonus += bonus;
 
       totalEmpPurchases += pur;
       totalEmpDirectIncome += inc;
@@ -1339,24 +1454,52 @@
 
       // Calculate deduction
       let ded = 0;
-      let netSal = sal;
+      const gross = sal + bonus;
+      let netSal = gross;
+      let pd = 0;
+      let paidTotal = 0;
       let remainingCashAfterSal = rem;
 
-      if (sal > 0) {
+      if (gross > 0) {
         if (rem > 0) {
           if (dedMode === 'auto') {
-            ded = Math.min(sal, rem);
+            ded = Math.min(gross, rem);
           } else if (dedMode === 'none') {
             ded = 0;
           } else if (dedMode === 'custom') {
-            ded = Math.min(Math.min(sal, rem), Math.max(0, customDed));
+            ded = Math.min(Math.min(gross, rem), Math.max(0, customDed));
           }
         }
-        netSal = sal - ded;
+        pd = Math.min(Math.max(0, peshgiDed), gross - ded);
+        netSal = gross - ded - pd;
+        // پرانی پیشگی کی واپسی کا credit: جس پارٹنر نے دی تھی اسے، ورنہ ریشو کے مطابق سب کو
+        if (pd > 0) {
+          if (pdBy !== 'pool' && pOutOfPocket[pdBy] !== undefined) {
+            pOutOfPocket[pdBy] += pd;
+            pPeshgiCredit[pdBy] += pd;
+          } else {
+            partners.forEach(p => {
+              const part = pd * (p.share || 1) / totalShares;
+              pOutOfPocket[p.id] += part;
+              pPeshgiCredit[p.id] += part;
+            });
+          }
+        }
         remainingCashAfterSal = rem - ded;
 
         // If a partner paid the net salary
-        if (payer && pOutOfPocket[payer] !== undefined) {
+        if (payer === 'common') {
+          paidTotal = netSal;
+        } else if (payer === 'split') {
+          partners.forEach(p => {
+            const a = paidMap[p.id] || 0;
+            pOutOfPocket[p.id] += a;
+            pNetSalTotals[p.id] += a;
+            paidTotal += a;
+          });
+          paidTotal += paidMap.common || 0;
+        } else if (payer && pOutOfPocket[payer] !== undefined) {
+          paidTotal = netSal;
           pOutOfPocket[payer] += netSal;
           pNetSalTotals[payer] += netSal;
         }
@@ -1381,6 +1524,14 @@
         advList: partners.map(p => ({ name: p.name, v: e.advances[p.id] || 0 })).filter(x => x.v > 0),
         advTotal: partnerAdvTotal, advFrom: advFromEmp, advTo: advToEmp, direct: inc, pur, rem,
         sal, ded, netSal, mode: dedMode,
+        bonus, pd, gross, paidTotal, payer,
+        unpaid: Math.max(0, netSal - paidTotal),
+        overpaid: Math.max(0, paidTotal - netSal),
+        paidList: (payer === 'split'
+          ? partners.map(p => ({ name: p.name, v: paidMap[p.id] || 0 })).concat([{ name: 'مشترکہ گلا', v: paidMap.common || 0 }])
+          : payer === 'common' ? [{ name: 'مشترکہ گلا', v: netSal }]
+          : (partners.find(p => p.id === payer) ? [{ name: partners.find(p => p.id === payer).name, v: netSal }] : [])
+        ).filter(x => x.v > 0.005),
         payerName: payer === 'none' ? '' : payer === 'common' ? 'مشترکہ آمدنی / گلا' : ((partners.find(p => p.id === payer) || {}).name || '')
       });
 
@@ -1388,13 +1539,17 @@
       const badgeNet = document.getElementById(`badge_${e.id}_net`);
       if (badgeDed) badgeDed.textContent = (ded > 0 ? '-' : '') + formatPKR(ded);
       if (badgeNet) badgeNet.textContent = formatPKR(netSal);
+      const badgePd = document.getElementById(`badge_${e.id}_pd`);
+      if (badgePd) badgePd.textContent = (pd > 0 ? '-' : '') + formatPKR(pd);
+      const badgeUnpaid = document.getElementById(`badge_${e.id}_unpaid`);
+      if (badgeUnpaid) badgeUnpaid.textContent = formatPKR(Math.max(0, netSal - paidTotal));
     });
 
     // 3. Overall Business Income & Expenses
     const totalPartnerIncome = partners.reduce((s, p) => s + (p.income || 0), 0);
     const totalPartnerExpense = partners.reduce((s, p) => s + (p.personal_expense || 0), 0);
     const totalIncome = totalPartnerIncome + totalEmpDirectIncome;
-    const totalExpenses = totalPartnerExpense + totalEmpPurchases + totalEmpSalaries;
+    const totalExpenses = totalPartnerExpense + totalEmpPurchases + totalEmpSalaries + totalEmpBonus;
     const netProfitOrLoss = totalIncome - totalExpenses;
 
     // 4. Partner Financial Balances
@@ -1412,6 +1567,7 @@
         advGiven: pAdvTotals[p.id] || 0,
         netSalGiven: pNetSalTotals[p.id] || 0,
         carried: pCarry[p.id] || 0,
+        peshgiCredit: pPeshgiCredit[p.id] || 0,
         netCashGivenToBiz,
         finalBalance
       };
@@ -1431,6 +1587,8 @@
       employees,
       savedHistory
     }));
+
+    scheduleCloudSave({ version: '3.0', calc_period, calc_date, calc_title, partners, employees, savedHistory });
 
     // Update Live Stats
     document.getElementById('statTotalIncome').textContent = formatPKR(totalIncome);
@@ -1461,7 +1619,7 @@
     const empRound = Math.round(totalRemainingEmpCash * 100) / 100;
 
     let decisionText = '';
-    if (creditors.length === 0 && debtors.length === 0 && empRound === 0 && !empResults.some(r => Math.abs(r.cash) > 0.005 || r.carry > 0.005)) {
+    if (creditors.length === 0 && debtors.length === 0 && empRound === 0 && !empResults.some(r => Math.abs(r.cash) > 0.005 || r.carry > 0.005 || r.unpaid > 0.5 || r.overpaid > 0.5)) {
       decisionText = 'سب کا حساب بالکل برابر ہے! کوئی لین دین باقی نہیں۔';
     } else {
       const directives = [];
@@ -1471,6 +1629,8 @@
           if (c > 0) directives.push(`👉 ${r.name} واپس کرے گا (بچا ہوا کیش): ${formatPKR(c)}`);
           else if (c < 0) directives.push(`👉 ${r.name} کو ملیں گے (اپنی جیب سے زیادہ لگایا): ${formatPKR(-c)}`);
           if (r.carry > 0.005) directives.push(`↪ ${r.name}: ${formatPKR(r.carry)} ایڈوانس اگلی تنخواہ میں کٹے گا`);
+          if (r.unpaid > 0.5) directives.push(`↪ ${r.name} کی ${formatPKR(r.unpaid)} تنخواہ ابھی ادا نہیں ہوئی`);
+          if (r.overpaid > 0.5) directives.push(`⚠️ ${r.name} کی تنخواہ میں ${formatPKR(r.overpaid)} زیادہ ادائیگی لکھی ہے`);
         });
       }
       debtors.forEach(d => {
@@ -1517,30 +1677,15 @@
       bd += `   ${p.name} کا ذاتی جیب سے خرچہ:`.padEnd(40) + `+${formatPKR(p.personal_expense)}\n`;
     });
     bd += `   ایمپلائز کی خریداریاں / خرچے:`.padEnd(40) + `+${formatPKR(totalEmpPurchases)}\n`;
+    if (totalEmpBonus > 0) bd += `   ایمپلائز کا بونس:`.padEnd(40) + `+${formatPKR(totalEmpBonus)}\n`;
 
     if (totalEmpSalaries > 0) {
-      let totalDeductions = 0;
-      let totalNetSalaries = 0;
-      employees.forEach(e => {
-        let inflow = (e.direct_income || 0) + (e.adv_from_emp || 0);
-        partners.forEach(p => { inflow += ((e.advances && e.advances[p.id]) || 0); });
-        const rem = inflow - (e.purchases || 0) - (e.adv_to_emp || 0);
-
-        if ((e.salary || 0) > 0) {
-          let ded = 0;
-          if (rem > 0) {
-            if ((e.deduction_mode || 'auto') === 'auto') ded = Math.min(e.salary, rem);
-            else if (e.deduction_mode === 'none') ded = 0;
-            else if (e.deduction_mode === 'custom') ded = Math.min(Math.min(e.salary, rem), Math.max(0, e.custom_deduction || 0));
-          }
-          totalDeductions += ded;
-          totalNetSalaries += (e.salary - ded);
-        }
-      });
-
+      const sumAdvDed = empResults.reduce((s, r) => s + r.ded, 0);
+      const sumPd = empResults.reduce((s, r) => s + r.pd, 0);
+      const sumNetPay = empResults.reduce((s, r) => s + ((r.sal > 0 || r.bonus > 0) ? r.netSal : 0), 0);
       bd += `   ایمپلائز کی کل تنخواہ (Total Salary):`.padEnd(40) + `+${formatPKR(totalEmpSalaries)}\n`;
-      if (totalDeductions > 0) {
-        bd += `     └─ [کیش میں دی گئی نیٹ تنخواہ: ${formatPKR(totalNetSalaries)} + ایڈوانس سے کٹوتی: ${formatPKR(totalDeductions)}]\n`;
+      if (sumAdvDed + sumPd > 0) {
+        bd += `     └─ [نیٹ ادائیگی: ${formatPKR(sumNetPay)} + ایڈوانس سے کٹوتی: ${formatPKR(sumAdvDed)} + پرانی پیشگی کی کٹوتی: ${formatPKR(sumPd)}]\n`;
       }
     }
     bd += `   ---------------------------------------------------------------------\n`;
@@ -1574,16 +1719,17 @@
       const er = empResults.find(x => x.id === e.id);
       if (er && er.carry > 0.005) bd += `     اگلی تنخواہ میں کٹنے والا ایڈوانس: ${formatPKR(er.carry)}\n`;
 
-      if ((e.salary || 0) > 0) {
-        let ded = 0;
-        if (rem > 0) {
-          if ((e.deduction_mode || 'auto') === 'auto') ded = Math.min(e.salary, rem);
-          else if (e.deduction_mode === 'none') ded = 0;
-          else if (e.deduction_mode === 'custom') ded = Math.min(Math.min(e.salary, rem), Math.max(0, e.custom_deduction || 0));
-        }
-        let note = e.deduction_mode === 'none' ? ' [اگلی تنخواہ تک مؤخر]' : (e.deduction_mode === 'custom' ? ' [جزوی کٹوتی]' : '');
-        bd += `     تنخواہ: ${formatPKR(e.salary)} | کٹوتی: -${formatPKR(ded)}${note} | ادا کرنے والی نیٹ تنخواہ: ${formatPKR(e.salary - ded)}\n`;
-        bd += `     تنخواہ کے بعد ایمپلائی کے پاس کیری فارورڈ کیش: = ${formatPKR(rem - ded)}\n`;
+      if (er && (er.sal > 0 || er.bonus > 0)) {
+        let line = `     تنخواہ: ${formatPKR(er.sal)}`;
+        if (er.bonus > 0) line += ` | بونس: +${formatPKR(er.bonus)}`;
+        line += ` | ایڈوانس کٹوتی: -${formatPKR(er.ded)}`;
+        if (e.deduction_mode === 'none') line += ' [اگلی تنخواہ تک مؤخر]';
+        else if (e.deduction_mode === 'custom') line += ' [جزوی کٹوتی]';
+        if (er.pd > 0) line += ` | پرانی پیشگی کٹوتی: -${formatPKR(er.pd)}`;
+        line += ` | ادا کرنے والی نیٹ تنخواہ: ${formatPKR(er.netSal)}\n`;
+        bd += line;
+        if (er.paidList.length) bd += `     ادا کرنے والے: ${er.paidList.map(x => x.name + " " + formatPKR(x.v)).join(" + ")}\n`;
+        if (er.unpaid > 0.5) bd += `     ابھی ادا ہونا باقی: ${formatPKR(er.unpaid)}\n`;
       }
     });
     bd += `   کل ایمپلائز کے پاس بقایا کیش:`.padEnd(40) + `= ${formatPKR(totalRemainingEmpCash)}\n\n`;
@@ -1597,6 +1743,7 @@
         bd += `       نیٹ تنخواہ اپنی جیب سے دی:`.padEnd(42) + `+${formatPKR(p.netSalGiven)}\n`;
       }
       if (p.carried > 0.005) bd += `       اگلے کھاتے میں منتقل ایڈوانس:`.padEnd(42) + `-${formatPKR(p.carried)}\n`;
+      if (p.peshgiCredit > 0.005) bd += `       پرانی پیشگی کی واپسی کا حصہ:`.padEnd(42) + `+${formatPKR(p.peshgiCredit)}\n`;
       bd += `       کل جیب سے لگایا (Out of Pocket):`.padEnd(42) + `= ${formatPKR(p.outOfPocket)}\n`;
       bd += `       منفی آمدنی جو اپنے پاس رکھی:`.padEnd(42) + `-${formatPKR(p.income)}\n`;
       bd += `       نیٹ پیسہ جو بزنس کو دیا:`.padEnd(42) + `= ${formatPKR(p.netCashGivenToBiz)}\n`;
@@ -1609,7 +1756,7 @@
     lastReportText = bd;
     renderReport({
       calc_title, calc_date, calc_period, partnerResults, totalShares, empResults,
-      totalIncome, totalExpenses, totalEmpDirectIncome, totalEmpPurchases, totalEmpSalaries,
+      totalIncome, totalExpenses, totalEmpDirectIncome, totalEmpPurchases, totalEmpSalaries, totalEmpBonus,
       netProfitOrLoss, totalRemainingEmpCash
     });
   }
@@ -1799,6 +1946,10 @@
       e.salary_payer = 'none';
       e.deduction_mode = 'auto';
       e.custom_deduction = 0;
+      e.bonus = 0;
+      e.peshgi_ded = 0;
+      e.peshgi_by = 'pool';
+      e.paid_by = {};
     });
 
     document.getElementById('calc_title').value = '';
@@ -1905,6 +2056,198 @@
     reader.readAsText(file);
     event.target.value = '';
   }
+
+  // --- CLOUD SYNC (Supabase) ---
+  // خالی چھوڑیں تو سائٹ پہلے کی طرح صرف اسی براؤزر میں چلتی ہے۔
+  // Supabase → Project Settings → API سے یہ دونوں بھریں (دیکھیں CLOUD_SETUP.md):
+  const SUPABASE_URL = 'https://vctxwwlbmedroulalvbb.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_0IlAWgRBznkJuCZYYzJM7Q_seaY2ewS';   // publishable (public) key
+
+  const cloud = { sb: null, ready: false, version: 0, me: '', applying: false, blocked: false, pending: null, timer: null, remote: null, sub: false };
+  const clientId = Math.random().toString(36).slice(2, 8);
+
+  function cloudSet(text, tone) {
+    const bar = document.getElementById('cloudBar');
+    if (!bar) return;
+    bar.hidden = false;
+    const el = document.getElementById('cloudStatus');
+    el.textContent = text;
+    el.className = 'cloud-status ' + (tone || '');
+  }
+
+  function currentSnapshot() {
+    return {
+      version: '3.0',
+      calc_period: document.getElementById('calc_period').value,
+      calc_date: document.getElementById('calc_date').value,
+      calc_title: document.getElementById('calc_title').value,
+      partners, employees, savedHistory
+    };
+  }
+
+  // کلاؤڈ سے آیا ہوا ڈیٹا اسکرین پر لگاؤ (اس دوران واپس سیو نہ ہو)
+  function applySnapshot(s) {
+    cloud.applying = true;
+    try {
+      if (s.partners && s.partners.length) partners = s.partners;
+      if (s.employees && s.employees.length) employees = s.employees;
+      savedHistory = Array.isArray(s.savedHistory) ? s.savedHistory : [];
+      if (s.calc_period) document.getElementById('calc_period').value = s.calc_period;
+      if (s.calc_date) document.getElementById('calc_date').value = s.calc_date;
+      document.getElementById('calc_title').value = s.calc_title || '';
+      renderPartners();
+      renderEmployees();
+      renderHistoryTable();
+      onPeriodChange();
+      calculate();
+    } finally {
+      cloud.applying = false;
+    }
+  }
+
+  function scheduleCloudSave(snap) {
+    if (!cloud.ready || cloud.applying || cloud.blocked) return;
+    cloud.pending = snap;
+    cloudSet('☁️ محفوظ ہو رہا ہے…');
+    clearTimeout(cloud.timer);
+    cloud.timer = setTimeout(flushCloudSave, 1000);
+  }
+
+  async function flushCloudSave() {
+    const snap = cloud.pending;
+    if (!snap || !cloud.ready || cloud.blocked) return;
+    cloud.pending = null;
+    try {
+      const { data, error } = await cloud.sb.from('ledger_state')
+        .update({ data: snap, version: cloud.version + 1, updated_at: new Date().toISOString(), updated_by: cloud.me })
+        .eq('id', 'main').eq('version', cloud.version)
+        .select('version');
+      if (error) throw error;
+      if (!data || !data.length) { await handleCloudConflict(); return; }
+      cloud.version = data[0].version;
+      if (!cloud.pending) cloudSet('☁️ کلاؤڈ میں محفوظ ✓', 'ok');
+    } catch (e) {
+      if (!cloud.pending) cloud.pending = snap;
+      cloudSet('☁️ آف لائن: دوبارہ کوشش ہو رہی ہے (ڈیٹا اس براؤزر میں محفوظ ہے)', 'bad');
+      clearTimeout(cloud.timer);
+      cloud.timer = setTimeout(flushCloudSave, 10000);
+    }
+  }
+
+  async function handleCloudConflict() {
+    const { data } = await cloud.sb.from('ledger_state').select('*').eq('id', 'main').maybeSingle();
+    if (data) showCloudBanner('⚠️ اسی دوران دوسرے پارٹنر نے تبدیلی کر دی، آپ کی آخری تبدیلی محفوظ نہیں ہوئی۔ تازہ ڈیٹا لوڈ کریں۔', data);
+  }
+
+  function showCloudBanner(text, row) {
+    cloud.blocked = true;
+    cloud.remote = row;
+    document.getElementById('cloudBannerText').textContent = text;
+    document.getElementById('cloudBanner').hidden = false;
+  }
+
+  function acceptRemote() {
+    const row = cloud.remote;
+    if (!row) return;
+    cloud.remote = null;
+    cloud.pending = null;
+    clearTimeout(cloud.timer);
+    applySnapshot(row.data);
+    cloud.version = row.version;
+    cloud.blocked = false;
+    document.getElementById('cloudBanner').hidden = true;
+    cloudSet('☁️ تازہ ترین ڈیٹا لوڈ ہو گیا ✓', 'ok');
+  }
+
+  function showCloudLogin(msg) {
+    const old = document.getElementById('cloudLoginOv');
+    if (old) old.remove();
+    const ov = document.createElement('div');
+    ov.id = 'cloudLoginOv';
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,.72);display:flex;align-items:center;justify-content:center;z-index:10000;padding:16px';
+    ov.innerHTML = `<div style="background:#fff;color:#111;border-radius:16px;padding:22px;width:100%;max-width:360px;direction:rtl">
+        <div style="font-weight:800;font-size:18px;margin-bottom:4px">🔐 لاگ اِن</div>
+        <div style="font-size:12.5px;color:#64748b;margin-bottom:12px">کھاتہ دیکھنے کے لیے اپنی ای میل اور پاس ورڈ لکھیں۔</div>
+        <label style="display:block;font-size:13px;margin-bottom:8px">ای میل<input class="form-input" id="cl_email" type="email" autocomplete="username" style="direction:ltr;margin-top:3px"></label>
+        <label style="display:block;font-size:13px;margin-bottom:8px">پاس ورڈ<input class="form-input" id="cl_pass" type="password" autocomplete="current-password" style="direction:ltr;margin-top:3px"></label>
+        <div id="cl_err" style="color:#e11d48;font-size:12.5px;min-height:18px;margin-bottom:6px"></div>
+        <button class="btn btn-primary" id="cl_go" style="width:100%">داخل ہوں</button>
+      </div>`;
+    document.body.appendChild(ov);
+    const err = ov.querySelector('#cl_err');
+    if (msg) err.textContent = msg;
+    const go = async () => {
+      err.textContent = '';
+      const { data, error } = await cloud.sb.auth.signInWithPassword({
+        email: ov.querySelector('#cl_email').value.trim(),
+        password: ov.querySelector('#cl_pass').value
+      });
+      if (error) { err.textContent = 'لاگ اِن نہیں ہوا: ای میل یا پاس ورڈ غلط ہے۔'; return; }
+      ov.remove();
+      cloudStart(data.session);
+    };
+    ov.querySelector('#cl_go').onclick = go;
+    ov.addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
+    ov.querySelector('#cl_email').focus();
+  }
+
+  async function cloudStart(session) {
+    try {
+      if (!session) session = (await cloud.sb.auth.getSession()).data.session;
+      if (!session) { showCloudLogin(); return; }
+      cloud.me = clientId + '|' + session.user.email;
+      document.getElementById('cloudUser').textContent = session.user.email;
+      cloudSet('☁️ لوڈ ہو رہا ہے…');
+
+      const { data: row, error } = await cloud.sb.from('ledger_state').select('*').eq('id', 'main').maybeSingle();
+      if (error) throw error;
+      if (row) {
+        applySnapshot(row.data);
+        cloud.version = row.version;
+      } else {
+        // پہلی دفعہ: اس براؤزر میں جو ڈیٹا ہے وہ کلاؤڈ میں چلا جائے
+        const ins = await cloud.sb.from('ledger_state')
+          .insert({ id: 'main', data: currentSnapshot(), version: 1, updated_by: cloud.me })
+          .select('version').single();
+        if (ins.error) throw ins.error;
+        cloud.version = ins.data.version;
+      }
+      cloud.ready = true;
+      cloudSet('☁️ کلاؤڈ سے جڑ گیا ✓', 'ok');
+
+      if (!cloud.sub) {
+        cloud.sub = true;
+        cloud.sb.channel('ledger-main')
+          .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'ledger_state', filter: 'id=eq.main' }, p => {
+            const r = p.new;
+            if (!r || r.updated_by === cloud.me || r.version <= cloud.version) return;
+            showCloudBanner('🔔 دوسرے پارٹنر نے کھاتہ بدلا ہے۔ تازہ ڈیٹا لوڈ کریں (آپ کی ابھی لکھی ہوئی تبدیلی ضائع ہو سکتی ہے)۔', r);
+          })
+          .subscribe();
+      }
+    } catch (e) {
+      const msg = String((e && e.message) || '');
+      if (/row-level security|permission denied|violates/i.test(msg)) {
+        cloudSet('🚫 اس ای میل کو اجازت نہیں: Supabase کی SQL policy میں یہی ای میل (' + (document.getElementById('cloudUser').textContent) + ') لکھی ہونی چاہیے۔', 'bad');
+        return;
+      }
+      cloudSet('☁️ آف لائن: اس براؤزر کا ڈیٹا چل رہا ہے، دوبارہ کوشش ہو رہی ہے' + (msg ? ' — ' + msg : ''), 'bad');
+      setTimeout(() => { if (!cloud.ready) cloudStart(); }, 15000);
+    }
+  }
+
+  async function cloudInit() {
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return;
+    if (!window.supabase) { cloudSet('☁️ کلاؤڈ لائبریری لوڈ نہیں ہوئی (انٹرنیٹ چیک کریں)', 'bad'); return; }
+    cloud.sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    document.getElementById('cloudLogout').onclick = async () => { await cloud.sb.auth.signOut(); location.reload(); };
+    document.getElementById('cloudBannerBtn').onclick = acceptRemote;
+    window.addEventListener('online', () => { if (cloud.pending) flushCloudSave(); else if (!cloud.ready) cloudStart(); });
+    cloudSet('☁️ …');
+    const { data } = await cloud.sb.auth.getSession();
+    if (data && data.session) cloudStart(data.session); else showCloudLogin();
+  }
+  window.addEventListener('DOMContentLoaded', () => setTimeout(cloudInit, 0));
 
   // On Page Load
   window.addEventListener('DOMContentLoaded', () => {
